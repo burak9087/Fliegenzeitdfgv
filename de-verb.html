@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Deutsch Verben - 700 Fiil + Çalışma Modu</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        html,body{height:auto;min-height:100vh;overflow-x:hidden}
+        body{font-family:'Segoe UI',Arial,sans-serif;background:#667eea;color:#fff;display:flex;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch}
+        
+        .header{padding:15px;text-align:center;background:linear-gradient(135deg, #667eea, #764ba2);position:sticky;top:0;z-index:100;flex-shrink:0}
+        .header h1{font-size:1.3rem}
+        .error-counter{position:absolute;right:15px;top:50%;transform:translateY(-50%);background:#ff4757;padding:6px 12px;border-radius:20px;font-weight:bold;font-size:0.8rem}
+        
+        .tabs{display:flex;background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);position:sticky;top:60px;z-index:99;flex-shrink:0}
+        .tab{flex:1;padding:12px;text-align:center;cursor:pointer;transition:all 0.3s;border-bottom:3px solid transparent;font-weight:600;font-size:0.9rem}
+        .tab.active{border-bottom-color:#fff;background:rgba(255,255,255,0.1)}
+        .tab:hover{background:rgba(255,255,255,0.2)}
+        
+        .content{flex:1;padding:15px;padding-bottom:100px;min-height:0}
+        
+        .mode-selection{background:rgba(255,255,255,0.95);color:#333;padding:15px;border-radius:15px;margin-bottom:15px;display:none}
+        .mode-selection.active{display:block}
+        .mode-btn{width:100%;padding:15px;margin:8px 0;border:none;border-radius:10px;background:linear-gradient(135deg, #667eea, #764ba2);color:#fff;font-size:1rem;cursor:pointer;transition:transform 0.2s}
+        .mode-btn:hover{transform:scale(1.02)}
+        
+        .quiz-container{background:rgba(255,255,255,0.95);color:#333;padding:20px;border-radius:15px;max-width:600px;margin:0 auto 20px;display:none}
+        .quiz-container.active{display:block}
+        .quiz-header{text-align:center;margin-bottom:15px}
+        .quiz-mode-title{color:#667eea;font-size:0.85rem;margin-bottom:5px}
+        .question-counter{color:#666;font-size:0.75rem}
+        
+        .question-box{background:linear-gradient(135deg, #667eea, #764ba2);color:#fff;padding:20px;border-radius:12px;text-align:center;margin-bottom:20px;font-size:1.1rem;font-weight:600;min-height:80px;display:flex;align-items:center;justify-content:center;word-break:break-word}
+        
+        .options{display:grid;gap:10px}
+        .option-btn{padding:15px;border:2px solid #e0e0e0;border-radius:10px;background:#fff;cursor:pointer;transition:all 0.3s;font-size:1rem;text-align:left;display:flex;align-items:center;touch-action:manipulation}
+        .option-btn:hover:not(.disabled){border-color:#667eea;transform:translateX(3px)}
+        .option-btn.correct{background:#2ed573;border-color:#2ed573;color:#fff}
+        .option-btn.wrong{background:#ff4757;border-color:#ff4757;color:#fff}
+        .option-btn.disabled{pointer-events:none;opacity:0.7}
+        .option-label{font-weight:bold;margin-right:8px;min-width:25px}
+        
+        .feedback{text-align:center;margin-top:15px;padding:12px;border-radius:8px;font-weight:600;display:none;font-size:0.95rem}
+        .feedback.show{display:block}
+        .feedback.correct{background:#2ed573;color:#fff}
+        .feedback.wrong{background:#ff4757;color:#fff}
+        
+        .next-btn{width:100%;padding:15px;margin-top:15px;border:none;border-radius:10px;background:#333;color:#fff;font-size:1rem;cursor:pointer;display:none;touch-action:manipulation}
+        .next-btn.show{display:block}
+        
+        .verb-card{background:#fff;color:#333;margin:0 auto 15px;padding:15px;border-radius:12px;max-width:600px;display:none}
+        .verb-card.active{display:block}
+        .verb-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:5px}
+        .verb-title{font-size:1.8rem;color:#667eea;font-weight:bold}
+        .verb-type{background:#667eea;color:#fff;padding:4px 10px;border-radius:12px;font-size:0.75rem}
+        .pronunciation{color:#666;margin-bottom:10px;font-style:italic;font-size:0.9rem}
+        .meaning-box{background:#f0f0f0;padding:12px;border-radius:8px;margin-bottom:12px;font-size:1.1rem}
+        
+        .conjugation-box{background:#f8f9fa;padding:12px;border-radius:8px;margin-bottom:12px}
+        .conjugation-title{font-weight:bold;color:#667eea;margin-bottom:8px;font-size:0.8rem;text-transform:uppercase}
+        .conjugation-grid{display:grid;grid-template-columns:repeat(2, 1fr);gap:6px}
+        .conj-item{padding:6px;background:#fff;border-radius:4px;font-size:0.85rem}
+        .conj-item strong{color:#667eea}
+        
+        .example-box{background:#e8f4f8;padding:12px;border-radius:8px;margin:8px 0;cursor:pointer;transition:all 0.3s;touch-action:manipulation}
+        .example-box:hover{background:#d1e7dd}
+        .example-de{font-weight:600;color:#333;font-size:0.95rem}
+        .example-tr{display:none;color:#666;margin-top:4px;font-style:italic;font-size:0.9rem}
+        .example-box.show .example-tr{display:block}
+        
+        .controls{display:flex;justify-content:center;gap:8px;margin-top:15px;flex-wrap:wrap;padding-bottom:20px}
+        .btn{background:#667eea;color:#fff;border:none;padding:10px 18px;border-radius:20px;font-size:0.9rem;cursor:pointer;transition:all 0.3s;touch-action:manipulation;flex:1;min-width:80px;max-width:140px}
+        .btn:hover{transform:scale(1.05)}
+        .btn-secondary{background:#764ba2}
+        
+        .progress-bar{width:100%;height:4px;background:rgba(255,255,255,0.3);border-radius:2px;margin:8px 0;overflow:hidden;flex-shrink:0}
+        .progress-fill{height:100%;background:#fff;transition:width 0.3s}
+        
+        .stats-box{background:rgba(255,255,255,0.1);padding:12px;border-radius:8px;margin-bottom:15px;text-align:center}
+        .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px}
+        .stat-item{background:rgba(255,255,255,0.1);padding:8px;border-radius:6px}
+        .stat-number{font-size:1.3rem;font-weight:bold}
+        .stat-label{font-size:0.75rem;opacity:0.8}
+        
+        .audio-error{color:#ff4757;font-size:0.85rem;margin-top:5px;display:none;text-align:center;padding:5px}
+        
+        /* Mobil optimizasyonları */
+        @media (max-width: 480px) {
+            .header h1{font-size:1.1rem}
+            .error-counter{font-size:0.75rem;padding:5px 10px}
+            .tab{font-size:0.8rem;padding:10px}
+            .verb-title{font-size:1.5rem}
+            .question-box{font-size:1rem;padding:15px}
+            .option-btn{padding:12px;font-size:0.95rem}
+            .btn{padding:8px 12px;font-size:0.85rem;min-width:70px}
+            .content{padding:10px;padding-bottom:80px}
+        }
+        
+        /* iPhone X ve üzeri için safe area */
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+            .content{padding-bottom: calc(20px + env(safe-area-inset-bottom))}
+            .controls{padding-bottom: calc(20px + env(safe-area-inset-bottom))}
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🇩🇪 Deutsch Verben Pro</h1>
+        <div class="error-counter" id="errorCounter">Hata: 0</div>
+    </div>
+    
+    <div class="progress-bar"><div class="progress-fill" id="progressBar" style="width:0%"></div></div>
+    
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('learn')">📚 Öğren</div>
+        <div class="tab" onclick="switchTab('study')">🎯 Çalış</div>
+    </div>
+    
+    <div class="content">
+        <!-- Learn Mode -->
+        <div id="learnMode">
+            <div class="stats-box">
+                <div>İlerleme</div>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number" id="currentNum">1</div>
+                        <div class="stat-label">/ 700</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="learnedCount">0</div>
+                        <div class="stat-label">Öğrenilen</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="streakCount">0</div>
+                        <div class="stat-label">Seri</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="verb-card active" id="verbCard">
+                <div class="verb-header">
+                    <div class="verb-title" id="verbName">sein</div>
+                    <div class="verb-type" id="verbType">Düzensiz</div>
+                </div>
+                <div class="pronunciation" id="pronunciation">[zain]</div>
+                <div class="meaning-box" id="meaning">olmak</div>
+                
+                <div class="conjugation-box">
+                    <div class="conjugation-title">Çekimler (Präsens)</div>
+                    <div class="conjugation-grid" id="conjugations">
+                        <div class="conj-item"><strong>ich</strong> bin</div>
+                        <div class="conj-item"><strong>du</strong> bist</div>
+                        <div class="conj-item"><strong>er/sie</strong> ist</div>
+                        <div class="conj-item"><strong>wir</strong> sind</div>
+                        <div class="conj-item"><strong>ihr</strong> seid</div>
+                        <div class="conj-item"><strong>sie/Sie</strong> sind</div>
+                    </div>
+                </div>
+                
+                <div id="examples">
+                    <div class="example-box" onclick="toggleExample(this)">
+                        <div class="example-de">Ich bin ein Student.</div>
+                        <div class="example-tr">Ben bir öğrenciyim.</div>
+                    </div>
+                    <div class="example-box" onclick="toggleExample(this)">
+                        <div class="example-de">Er ist sehr freundlich.</div>
+                        <div class="example-tr">O çok cana yakındır.</div>
+                    </div>
+                    <div class="example-box" onclick="toggleExample(this)">
+                        <div class="example-de">Wir sind in Berlin.</div>
+                        <div class="example-tr">Biz Berlin'deyiz.</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button class="btn" onclick="prevVerb()">⬅️ Önceki</button>
+                <button class="btn btn-secondary" onclick="playAudio()">🔊 Dinle</button>
+                <button class="btn" onclick="markLearned()">✓ Öğrendim</button>
+                <button class="btn" onclick="nextVerb()">Sonraki ➡️</button>
+            </div>
+            <div class="audio-error" id="audioError">Ses çalma desteklenmiyor veya ses dosyası bulunamadı.</div>
+        </div>
+        
+        <!-- Study Mode -->
+        <div id="studyMode" style="display:none">
+            <div class="mode-selection active" id="modeSelection">
+                <h2 style="text-align:center;margin-bottom:20px;color:#667eea">Çalışma Modunu Seç</h2>
+                <button class="mode-btn" onclick="startQuiz('de-tr')">
+                    🇩🇪 ➡️ 🇹🇷<br>
+                    <small>Almanca Soru - Türkçe Cevaplar</small>
+                </button>
+                <button class="mode-btn" onclick="startQuiz('tr-de')">
+                    🇹🇷 ➡️ 🇩🇪<br>
+                    <small>Türkçe Soru - Almanca Cevaplar</small>
+                </button>
+                <button class="mode-btn" onclick="startQuiz('conj')">
+                    📝 Çekim Testi<br>
+                    <small>Doğru Çekimi Seç</small>
+                </button>
+            </div>
+            
+            <div class="quiz-container" id="quizContainer">
+                <div class="quiz-header">
+                    <div class="quiz-mode-title" id="quizModeTitle">Almanca ➡️ Türkçe</div>
+                    <div class="question-counter" id="questionCounter">Soru 1</div>
+                </div>
+                
+                <div class="question-box" id="questionBox">sein</div>
+                
+                <div class="options" id="options">
+                    <button class="option-btn" onclick="checkAnswer(0)">
+                        <span class="option-label">A)</span> <span class="option-text">olmak</span>
+                    </button>
+                    <button class="option-btn" onclick="checkAnswer(1)">
+                        <span class="option-label">B)</span> <span class="option-text">gitmek</span>
+                    </button>
+                    <button class="option-btn" onclick="checkAnswer(2)">
+                        <span class="option-label">C)</span> <span class="option-text">yapmak</span>
+                    </button>
+                    <button class="option-btn" onclick="checkAnswer(3)">
+                        <span class="option-label">D)</span> <span class="option-text">gelmek</span>
+                    </button>
+                </div>
+                
+                <div class="feedback" id="feedback"></div>
+                <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Sonraki Soru ➡️</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+// 50 Temel Fiil (Kompakt Veritabanı) - DÜZELTİLMİŞ
+const verbsData = [
+    {de:"sein",tr:"olmak",type:"Düzensiz",pron:"[zain]",conj:["bin","bist","ist","sind","seid","sind"],examples:[["Ich bin müde.","Ben yorgunum."],["Du bist nett.","Sen naziksin."],["Wir sind hier.","Biz buradayız."]]},
+    {de:"haben",tr:"sahip olmak",type:"Düzensiz",pron:"[ha:ben]",conj:["habe","hast","hat","haben","habt","haben"],examples:[["Ich habe Zeit.","Vaktim var."],["Er hat Hunger.","O aç."],["Wir haben Geld.","Paramız var."]]},
+    {de:"werden",tr:"olmak (gelecek)",type:"Düzensiz",pron:"[ve:aden]",conj:["werde","wirst","wird","werden","werdet","werden"],examples:[["Ich werde Arzt.","Doktor olacağım."],["Es wird kalt.","Hava soğuyacak."]]},
+    {de:"machen",tr:"yapmak",type:"Düzenli",pron:"[maxen]",conj:["mache","machst","macht","machen","macht","machen"],examples:[["Ich mache Hausaufgaben.","Ödev yapıyorum."],["Was machst du?","Ne yapıyorsun?"]]},
+    {de:"gehen",tr:"gitmek",type:"Düzensiz",pron:"[ge:en]",conj:["gehe","gehst","geht","gehen","geht","gehen"],examples:[["Ich gehe nach Hause.","Eve gidiyorum."],["Wohin gehst du?","Nereye gidiyorsun?"]]},
+    {de:"kommen",tr:"gelmek",type:"Düzensiz",pron:"[kɔmen]",conj:["komme","kommst","kommt","kommen","kommt","kommen"],examples:[["Ich komme aus Türkei.","Türkiye'den geliyorum."],["Kommst du mit?","Benimle geliyor musun?"]]},
+    {de:"sehen",tr:"görmek",type:"Düzensiz",pron:"[ze:en]",conj:["sehe","siehst","sieht","sehen","seht","sehen"],examples:[["Ich sehe dich.","Seni görüyorum."],["Siehst du das?","Bunu görüyor musun?"]]},
+    {de:"sagen",tr:"söylemek",type:"Düzenli",pron:"[za:gen]",conj:["sage","sagst","sagt","sagen","sagt","sagen"],examples:[["Was sagst du?","Ne diyorsun?"],["Er sagt die Wahrheit.","O doğruyu söylüyor."]]},
+    {de:"geben",tr:"vermek",type:"Düzensiz",pron:"[ge:ben]",conj:["gebe","gibst","gibt","geben","gebt","geben"],examples:[["Ich gebe dir das Buch.","Sana kitabı veriyorum."],["Es gibt ein Problem.","Bir sorun var."]]},
+    {de:"nehmen",tr:"almak",type:"Düzensiz",pron:"[ne:men]",conj:["nehme","nimmst","nimmt","nehmen","nehmt","nehmen"],examples:[["Ich nehme den Bus.","Otobüsü alıyorum."],["Nimmst du Kaffee?","Kahve alıyor musun?"]]},
+    {de:"wissen",tr:"bilmek",type:"Düzensiz",pron:"[visen]",conj:["weiß","weißt","weiß","wissen","wisst","wissen"],examples:[["Ich weiß es nicht.","Bilmiyorum."],["Weißt du das?","Bunu biliyor musun?"]]},
+    {de:"wollen",tr:"istemek",type:"Düzensiz",pron:"[vɔlen]",conj:["will","willst","will","wollen","wollt","wollen"],examples:[["Ich will schlafen.","Uyumak istiyorum."],["Was willst du?","Ne istiyorsun?"]]},
+    {de:"können",tr:"ebilmek",type:"Düzensiz",pron:"[kønən]",conj:["kann","kannst","kann","können","könnt","können"],examples:[["Ich kann schwimmen.","Yüzebilirim."],["Kannst du mir helfen?","Bana yardım edebilir misin?"]]},
+    {de:"müssen",tr:"zorunda olmak",type:"Düzensiz",pron:"[mʏsən]",conj:["muss","musst","muss","müssen","müsst","müssen"],examples:[["Ich muss gehen.","Gitmek zorundayım."],["Musst du arbeiten?","Çalışmak zorunda mısın?"]]},
+    {de:"sollen",tr:"gerekmek",type:"Düzensiz",pron:"[zɔlən]",conj:["soll","sollst","soll","sollen","sollt","sollen"],examples:[["Ich soll lernen.","Çalışmam gerekiyor."],["Was soll ich tun?","Ne yapmam gerekiyor?"]]},
+    {de:"dürfen",tr:"izni olmak",type:"Düzensiz",pron:"[dy:afən]",conj:["darf","darfst","darf","dürfen","dürft","dürfen"],examples:[["Ich darf nicht rauchen.","Sigara içemem."],["Darf ich hereinkommen?","İçeri girebilir miyim?"]]},
+    {de:"mögen",tr:"sevmek",type:"Düzensiz",pron:"[mø:gən]",conj:["mag","magst","mag","mögen","mögt","mögen"],examples:[["Ich mag dich.","Senden hoşlanıyorum."],["Magst du Musik?","Müzik sever misin?"]]},
+    {de:"lassen",tr:"bırakmak",type:"Düzensiz",pron:"[lasən]",conj:["lasse","lässt","lässt","lassen","lasst","lassen"],examples:[["Lass mich in Ruhe!","Beni rahat bırak!"],["Er lässt mich warten.","Beni bekletiyor."]]},
+    {de:"heißen",tr:"adı olmak",type:"Düzensiz",pron:"[haisən]",conj:["heiße","heißt","heißt","heißen","heißt","heißen"],examples:[["Ich heiße Ahmet.","Benim adım Ahmet."],["Wie heißt du?","Adın ne?"]]},
+    {de:"finden",tr:"bulmak",type:"Düzenli",pron:"[findən]",conj:["finde","findest","findet","finden","findet","finden"],examples:[["Ich finde das gut.","Bunu iyi buluyorum."],["Wo finde ich das?","Bunu nerede bulurum?"]]},
+    {de:"denken",tr:"düşünmek",type:"Düzenli",pron:"[deŋkən]",conj:["denke","denkst","denkt","denken","denkt","denken"],examples:[["Ich denke an dich.","Seni düşünüyorum."],["Was denkst du?","Ne düşünüyorsun?"]]},
+    {de:"trinken",tr:"içmek",type:"Düzenli",pron:"[triŋkən]",conj:["trinke","trinkst","trinkt","trinken","trinkt","trinken"],examples:[["Ich trinke Wasser.","Su içiyorum."],["Trinkst du Kaffee?","Kahve içiyor musun?"]]},
+    {de:"essen",tr:"yemek",type:"Düzensiz",pron:"[ɛsən]",conj:["esse","isst","isst","essen","esst","essen"],examples:[["Ich esse Brot.","Ekmek yiyorum."],["Was isst du?","Ne yiyorsun?"]]},
+    {de:"schlafen",tr:"uyumak",type:"Düzensiz",pron:"[ʃla:fən]",conj:["schlafe","schläfst","schläft","schlafen","schlaft","schlafen"],examples:[["Ich schlafe gut.","İyi uyuyorum."],["Schläfst du noch?","Hâlâ uyuyor musun?"]]},
+    {de:"fahren",tr:"gitmek/araba sürmek",type:"Düzensiz",pron:"[fa:ʁən]",conj:["fahre","fährst","fährt","fahren","fahrt","fahren"],examples:[["Ich fahre nach Berlin.","Berlin'e gidiyorum."],["Fährst du Auto?","Araba sürüyor musun?"]]},
+    {de:"lesen",tr:"okumak",type:"Düzensiz",pron:"[le:zən]",conj:["lese","liest","liest","lesen","lest","lesen"],examples:[["Ich lese ein Buch.","Kitap okuyorum."],["Liest du gern?","Okumayı sever misin?"]]},
+    {de:"schreiben",tr:"yazmak",type:"Düzenli",pron:"[ʃʁaibən]",conj:["schreibe","schreibst","schreibt","schreiben","schreibt","schreiben"],examples:[["Ich schreibe Briefe.","Mektup yazıyorum."],["Was schreibst du?","Ne yazıyorsun?"]]},
+    {de:"sprechen",tr:"konuşmak",type:"Düzensiz",pron:"[ʃpʁɛçən]",conj:["spreche","sprichst","spricht","sprechen","sprecht","sprechen"],examples:[["Ich spreche Deutsch.","Almanca konuşuyorum."],["Sprichst du Englisch?","İngilizce konuşuyor musun?"]]},
+    {de:"verstehen",tr:"anlamak",type:"Düzenli",pron:"[fɛaʃte:ən]",conj:["verstehe","verstehst","versteht","verstehen","versteht","verstehen"],examples:[["Ich verstehe nicht.","Anlamıyorum."],["Verstehst du mich?","Beni anlıyor musun?"]]},
+    {de:"arbeiten",tr:"çalışmak",type:"Düzenli",pron:"[aʁbaɪtən]",conj:["arbeite","arbeitest","arbeitet","arbeiten","arbeitet","arbeiten"],examples:[["Ich arbeite hier.","Burada çalışıyorum."],["Wo arbeitest du?","Nerede çalışıyorsun?"]]},
+    {de:"wohnen",tr:"oturmak/yaşamak",type:"Düzenli",pron:"[vo:nən]",conj:["wohne","wohnst","wohnt","wohnen","wohnt","wohnen"],examples:[["Ich wohne in Istanbul.","İstanbul'da oturuyorum."],["Wo wohnst du?","Nerede oturuyorsun?"]]},
+    {de:"spielen",tr:"oynamak",type:"Düzenli",pron:"[ʃpi:lən]",conj:["spiele","spielst","spielt","spielen","spielt","spielen"],examples:[["Ich spiele Fußball.","Futbol oynuyorum."],["Spielst du gern?","Oynamayı sever misin?"]]},
+    {de:"lernen",tr:"öğrenmek",type:"Düzenli",pron:"[lɛʁnən]",conj:["lerne","lernst","lernt","lernen","lernt","lernen"],examples:[["Ich lerne Deutsch.","Almanca öğreniyorum."],["Lernst du viel?","Çok çalışıyor musun?"]]},
+    {de:"kaufen",tr:"satın almak",type:"Düzenli",pron:"[kaufən]",conj:["kaufe","kaufst","kauft","kaufen","kauft","kaufen"],examples:[["Ich kaufe Brot.","Ekmek alıyorum."],["Was kaufst du?","Ne alıyorsun?"]]},
+    {de:"bringen",tr:"getirmek",type:"Düzensiz",pron:"[bʁiŋən]",conj:["bringe","bringst","bringt","bringen","bringt","bringen"],examples:[["Ich bringe das Buch.","Kitabı getiriyorum."],["Bringst du Kuchen?","Kek getiriyor musun?"]]},
+    {de:"warten",tr:"beklemek",type:"Düzenli",pron:"[vaʁtən]",conj:["warte","wartest","wartet","warten","wartet","warten"],examples:[["Ich warte auf dich.","Seni bekliyorum."],["Wartest du lange?","Uzun bekliyor musun?"]]},
+    {de:"anrufen",tr:"aramak (telefon)",type:"Düzenli",pron:"[anʁu:fən]",conj:["rufe an","rufst an","ruft an","rufen an","ruft an","rufen an"],examples:[["Ich rufe dich an.","Seni arıyorum."],["Rufst du mich an?","Beni arıyor musun?"]]},
+    {de:"aufstehen",tr:"kalkmak",type:"Düzensiz",pron:"[aufʃte:ən]",conj:["stehe auf","stehst auf","steht auf","stehen auf","steht auf","stehen auf"],examples:[["Ich stehe früh auf.","Erken kalkıyorum."],["Wann stehst du auf?","Ne zaman kalkıyorsun?"]]},
+    {de:"einkaufen",tr:"alışveriş yapmak",type:"Düzenli",pron:"[ainkaufən]",conj:["kaufe ein","kaufst ein","kauft ein","kaufen ein","kauft ein","kaufen ein"],examples:[["Ich kaufe ein.","Alışveriş yapıyorum."],["Kaufst du oft ein?","Sık alışveriş yapar mısın?"]]},
+    {de:"fernsehen",tr:"televizyon izlemek",type:"Düzensiz",pron:"[fɛʁnze:ən]",conj:["sehe fern","siehst fern","sieht fern","sehen fern","seht fern","sehen fern"],examples:[["Ich sehe fern.","Televizyon izliyorum."],["Siehst du gern fern?","TV izlemeyi sever misin?"]]},
+    {de:"anfangen",tr:"başlamak",type:"Düzensiz",pron:"[anfaŋən]",conj:["fange an","fängst an","fängt an","fangen an","fangt an","fangen an"],examples:[["Ich fange an.","Başlıyorum."],["Wann fängst du an?","Ne zaman başlıyorsun?"]]},
+    {de:"bezahlen",tr:"ödemek",type:"Düzenli",pron:"[bətsa:lən]",conj:["bezahle","bezahlst","bezahlt","bezahlen","bezahlt","bezahlen"],examples:[["Ich bezahle bar.","Nakit ödüyorum."],["Bezahlst du mit Karte?","Kartla mı ödüyorsun?"]]},
+    {de:"bestellen",tr:"sipariş vermek",type:"Düzenli",pron:"[bəʃtɛlən]",conj:["bestelle","bestellst","bestellt","bestellen","bestellt","bestellen"],examples:[["Ich bestelle Pizza.","Pizza sipariş ediyorum."],["Was bestellst du?","Ne sipariş ediyorsun?"]]},
+    {de:"fragen",tr:"sormak",type:"Düzenli",pron:"[fʁa:gən]",conj:["frage","fragst","fragt","fragen","fragt","fragen"],examples:[["Ich frage dich.","Sana soruyorum."],["Was fragst du?","Ne soruyorsun?"]]},
+    {de:"helfen",tr:"yardım etmek",type:"Düzensiz",pron:"[hɛlfən]",conj:["helfe","hilfst","hilft","helfen","helft","helfen"],examples:[["Ich helfe dir.","Sana yardım ediyorum."],["Hilfst du mir?","Bana yardım eder misin?"]]},
+    {de:"hören",tr:"duymak/dinlemek",type:"Düzenli",pron:"[hø:ʁən]",conj:["höre","hörst","hört","hören","hört","hören"],examples:[["Ich höre Musik.","Müzik dinliyorum."],["Hörst du das?","Bunu duyuyor musun?"]]},
+    {de:"laufen",tr:"koşmak/yürümek",type:"Düzensiz",pron:"[laufən]",conj:["laufe","läufst","läuft","laufen","lauft","laufen"],examples:[["Ich laufe schnell.","Hızlı koşuyorum."],["Läufst du gern?","Koşmayı sever misin?"]]},
+    {de:"lieben",tr:"sevmek",type:"Düzenli",pron:"[li:bən]",conj:["liebe","liebst","liebt","lieben","liebt","lieben"],examples:[["Ich liebe dich.","Seni seviyorum."],["Liebst du mich?","Beni seviyor musun?"]]},
+    {de:"liegen",tr:"uzanmak/yatmak",type:"Düzensiz",pron:"[li:gən]",conj:["liege","liegst","liegt","liegen","liegt","liegen"],examples:[["Ich liege im Bett.","Yatakta yatıyorum."],["Wo liegt das Buch?","Kitap nerede?"]]},
+    {de:"öffnen",tr:"açmak",type:"Düzenli",pron:"[œfnən]",conj:["öffne","öffnest","öffnet","öffnen","öffnet","öffnen"],examples:[["Ich öffne die Tür.","Kapıyı açıyorum."],["Öffnest du das Fenster?","Pencereyi açıyor musun?"]]},
+    {de:"schließen",tr:"kapatmak",type:"Düzensiz",pron:"[ʃli:sən]",conj:["schließe","schließt","schließt","schließen","schließt","schließen"],examples:[["Ich schließe die Tür.","Kapıyı kapatıyorum."],["Schließt du das Buch?","Kitabı kapatıyor musun?"]]},
+    {de:"schwimmen",tr:"yüzmek",type:"Düzensiz",pron:"[ʃvimmən]",conj:["schwimme","schwimmst","schwimmt","schwimmen","schwimmt","schwimmen"],examples:[["Ich schwimme gern.","Yüzmeyi severim."],["Schwimmst du gut?","İyi yüzer misin?"]]},
+    {de:"sitzen",tr:"oturmak",type:"Düzensiz",pron:"[zitsən]",conj:["sitze","sitzt","sitzt","sitzen","sitzt","sitzen"],examples:[["Ich sitze hier.","Burada oturuyorum."],["Sitzt du bequem?","Rahat oturuyor musun?"]]},
+    {de:"stehen",tr:"ayakta durmak",type:"Düzensiz",pron:"[ʃte:ən]",conj:["stehe","stehst","steht","stehen","steht","stehen"],examples:[["Ich stehe hier.","Burada duruyorum."],["Wo stehst du?","Nerede duruyorsun?"]]},
+    {de:"suchen",tr:"aramak",type:"Düzenli",pron:"[zu:xən]",conj:["suche","suchst","sucht","suchen","sucht","suchen"],examples:[["Ich suche dich.","Seni arıyorum."],["Was suchst du?","Ne arıyorsun?"]]},
+    {de:"tanzen",tr:"dans etmek",type:"Düzenli",pron:"[tantsən]",conj:["tanze","tanzt","tanzt","tanzen","tanzt","tanzen"],examples:[["Ich tanze gern.","Dans etmeyi severim."],["Tanzt du gut?","İyi dans eder misin?"]]},
+    {de:"tragen",tr:"giymek/taşımak",type:"Düzensiz",pron:"[tʁa:gən]",conj:["trage","trägst","trägt","tragen","tragt","tragen"],examples:[["Ich trage eine Brille.","Gözlük takıyorum."],["Was trägst du?","Ne giyiyorsun?"]]},
+    {de:"vergessen",tr:"unutmak",type:"Düzensiz",pron:"[fɛagɛsən]",conj:["vergesse","vergisst","vergisst","vergessen","vergesst","vergessen"],examples:[["Ich vergesse das.","Bunu unutuyorum."],["Vergisst du oft?","Sık unutur musun?"]]},
+    {de:"waschen",tr:"yıkamak",type:"Düzensiz",pron:"[vaʃən]",conj:["wasche","wäschst","wäscht","waschen","wascht","waschen"],examples:[["Ich wasche mich.","Yıkanıyorum."],["Wäschst du die Wäsche?","Çamaşır yıkıyor musun?"]]},
+    {de:"werfen",tr:"atmak/fırlatmak",type:"Düzensiz",pron:"[vɛafən]",conj:["werfe","wirfst","wirft","werfen","werft","werfen"],examples:[["Ich werfe den Ball.","Topu atıyorum."],["Wirfst du den Brief?","Mektubu atıyor musun?"]]},
+    {de:"ziehen",tr:"çekmek/giymek",type:"Düzensiz",pron:"[tsi:ən]",conj:["ziehe","ziehst","zieht","ziehen","zieht","ziehen"],examples:[["Ich ziehe den Mantel an.","Palto giyiyorum."],["Ziehst du dich an?","Giyiniyor musun?"]]},
+    {de:"anmachen",tr:"açmak (ışık)",type:"Düzenli",pron:"[anmaxən]",conj:["mache an","machst an","macht an","machen an","macht an","machen an"],examples:[["Ich mache das Licht an.","Işığı açıyorum."],["Machst du den Fernseher an?","Televizyonu açıyor musun?"]]},
+    {de:"ausmachen",tr:"kapatmak (ışık)",type:"Düzenli",pron:"[ausmaxən]",conj:["mache aus","machst aus","macht aus","machen aus","macht aus","machen aus"],examples:[["Ich mache das Licht aus.","Işığı kapatıyorum."],["Machst du den Computer aus?","Bilgisayarı kapatıyor musun?"]]},
+    {de:"umsteigen",tr:"aktarmak/transfer",type:"Düzensiz",pron:"[umʃtaigən]",conj:["steige um","steigst um","steigt um","steigen um","steigt um","steigen um"],examples:[["Ich steige um.","Aktarma yapıyorum."],["Wo steigst du um?","Nerede aktarma yapıyorsun?"]]},
+    {de:"einsteigen",tr:"binmek (araca)",type:"Düzensiz",pron:"[ainʃtaigən]",conj:["steige ein","steigst ein","steigt ein","steigen ein","steigt ein","steigen ein"],examples:[["Ich steige ein.","Biniyorum."],["Steigst du ein?","Binecek misin?"]]},
+    {de:"aussteigen",tr:"inmek (aractan)",type:"Düzensiz",pron:"[ausʃtaigən]",conj:["steige aus","steigst aus","steigt aus","steigen aus","steigt aus","steigen aus"],examples:[["Ich steige aus.","İniyorum."],["Wo steigst du aus?","Nerede ineceksin?"]]},
+    {de:"mitkommen",tr:"beraber gelmek",type:"Düzensiz",pron:"[mitkɔmən]",conj:["komme mit","kommst mit","kommt mit","kommen mit","kommt mit","kommen mit"],examples:[["Ich komme mit.","Ben de geliyorum."],["Kommst du mit?","Benimle geliyor musun?"]]},
+    {de:"mitnehmen",tr:"beraber götürmek",type:"Düzensiz",pron:"[mitne:mən]",conj:["nehme mit","nimmst mit","nimmt mit","nehmen mit","nehmt mit","nehmen mit"],examples:[["Ich nehme dich mit.","Seni de götürüyorum."],["Nimmst du mich mit?","Beni de götürür müsün?"]]},
+    {de:"vorstellen",tr:"tanıtmak/tahmin etmek",type:"Düzenli",pron:"[fo:aʃtɛlən]",conj:["stelle vor","stellst vor","stellt vor","stellen vor","stellt vor","stellen vor"],examples:[["Ich stelle mich vor.","Kendimi tanıtıyorum."],["Stellst du ihn vor?","Onu tanıtıyor musun?"]]},
+    {de:"vorhaben",tr:"planlamak/niyet etmek",type:"Düzensiz",pron:"[fo:aha:bən]",conj:["habe vor","hast vor","hat vor","haben vor","habt vor","haben vor"],examples:[["Ich habe vor zu gehen.","Gitmeyi planlıyorum."],["Was hast du vor?","Ne planlıyorsun?"]]},
+    {de:"stattfinden",tr:"gerçekleşmek",type:"Düzensiz",pron:"[ʃtatfindən]",conj:["finde statt","findest statt","findet statt","finden statt","findet statt","finden statt"],examples:[["Das findet statt.","Bu gerçekleşiyor."],["Wann findet es statt?","Ne zaman gerçekleşecek?"]]},
+    {de:"teilnehmen",tr:"katılmak",type:"Düzensiz",pron:"[tailne:mən]",conj:["nehme teil","nimmst teil","nimmt teil","nehmen teil","nehmt teil","nehmen teil"],examples:[["Ich nehme teil.","Katılıyorum."],["Nimmst du teil?","Katılıyor musun?"]]},
+    {de:"stattgeben",tr:"kabul etmek",type:"Düzensiz",pron:"[ʃtatge:bən]",conj:["gebe statt","gibst statt","gibt statt","geben statt","gebt statt","geben statt"],examples:[["Ich gebe statt.","Kabul ediyorum."],["Gibst du statt?","Kabul ediyor musun?"]]},
+    {de:"zuhören",tr:"dinlemek (dikkatle)",type:"Düzenli",pron:"[tsu:hø:ʁən]",conj:["höre zu","hörst zu","hört zu","hören zu","hört zu","hören zu"],examples:[["Ich höre zu.","Dinliyorum."],["Hörst du zu?","Dinliyor musun?"]]},
+    {de:"zusehen",tr:"seyretmek",type:"Düzensiz",pron:"[tsu:ze:ən]",conj:["sehe zu","siehst zu","sieht zu","sehen zu","seht zu","sehen zu"],examples:[["Ich sehe zu.","Seyrediyorum."],["Siehst du zu?","Seyrediyor musun?"]]},
+    {de:"nachdenken",tr:"düşünmek (derinlemesine)",type:"Düzensiz",pron:"[naxdeŋkən]",conj:["denke nach","denkst nach","denkt nach","denken nach","denkt nach","denken nach"],examples:[["Ich denke nach.","Düşünüyorum."],["Denkst du nach?","Düşünüyor musun?"]]},
+    {de:"bescheid sagen",tr:"haber vermek",type:"Düzensiz",pron:"[bəʃait za:gən]",conj:["sage Bescheid","sagst Bescheid","sagt Bescheid","sagen Bescheid","sagt Bescheid","sagen Bescheid"],examples:[["Ich sage Bescheid.","Haber vereceğim."],["Sagst du Bescheid?","Haber verir misin?"]]},
+    {de:"kennenlernen",tr:"tanımak (yeni)",type:"Düzenli",pron:"[kɛnənlɛʁnən]",conj:["lerne kennen","lernst kennen","lernt kennen","lernen kennen","lernt kennen","lernen kennen"],examples:[["Ich lerne ihn kennen.","Onu tanıyorum."],["Lernst du sie kennen?","Onu tanıyor musun?"]]},
+    {de:"fernbleiben",tr:"gelmemek/uzak durmak",type:"Düzensiz",pron:"[fɛʁnblaibən]",conj:["bleibe fern","bleibst fern","bleibt fern","bleiben fern","bleibt fern","bleiben fern"],examples:[["Ich bleibe fern.","Uzak duruyorum."],["Bleibst du fern?","Uzak duruyor musun?"]]},
+    {de:"losgehen",tr:"başlamak/gitmek",type:"Düzensiz",pron:"[losge:ən]",conj:["gehe los","gehst los","geht los","gehen los","geht los","gehen los"],examples:[["Ich gehe los.","Başlıyorum."],["Wann gehst du los?","Ne zaman başlıyorsun?"]]},
+    {de:"mitbringen",tr:"beraber getirmek",type:"Düzensiz",pron:"[mitbʁiŋən]",conj:["bringe mit","bringst mit","bringt mit","bringen mit","bringt mit","bringen mit"],examples:[["Ich bringe etwas mit.","Bir şey getiriyorum."],["Bringst du das mit?","Bunu getiriyor musun?"]]},
+    {de:"weggehen",tr:"uzaklaşmak",type:"Düzensiz",pron:"[vekge:ən]",conj:["gehe weg","gehst weg","geht weg","gehen weg","geht weg","gehen weg"],examples:[["Ich gehe weg.","Uzaklaşıyorum."],["Gehst du weg?","Uzaklaşıyor musun?"]]},
+    {de:"zurückkommen",tr:"geri dönmek",type:"Düzensiz",pron:"[tsuʁʏkkɔmən]",conj:["komme zurück","kommst zurück","kommt zurück","kommen zurück","kommt zurück","kommen zurück"],examples:[["Ich komme zurück.","Geri dönüyorum."],["Wann kommst du zurück?","Ne zaman döneceksin?"]]},
+    {de:"aufmachen",tr:"açmak",type:"Düzenli",pron:"[aufmaxən]",conj:["mache auf","machst auf","macht auf","machen auf","macht auf","machen auf"],examples:[["Ich mache auf.","Açıyorum."],["Machst du auf?","Açıyor musun?"]]},
+    {de:"zumachen",tr:"kapatmak",type:"Düzenli",pron:"[tsu:maxən]",conj:["mache zu","machst zu","macht zu","machen zu","macht zu","machen zu"],examples:[["Ich mache zu.","Kapatıyorum."],["Machst du zu?","Kapatıyor musun?"]]},
+    {de:"reinkommen",tr:"içeri girmek",type:"Düzensiz",pron:"[ʁainkɔmən]",conj:["komme rein","kommst rein","kommt rein","kommen rein","kommt rein","kommen rein"],examples:[["Ich komme rein.","İçeri giriyorum."],["Kommst du rein?","İçeri giriyor musun?"]]},
+    {de:"rausgehen",tr:"dışarı çıkmak",type:"Düzensiz",pron:"[ʁausge:ən]",conj:["gehe raus","gehst raus","geht raus","gehen raus","geht raus","gehen raus"],examples:[["Ich gehe raus.","Dışarı çıkıyorum."],["Gehst du raus?","Dışarı çıkıyor musun?"]]},
+    {de:"hochgehen",tr:"yukarı çıkmak",type:"Düzensiz",pron:"[hɔxge:ən]",conj:["gehe hoch","gehst hoch","geht hoch","gehen hoch","geht hoch","gehen hoch"],examples:[["Ich gehe hoch.","Yukarı çıkıyorum."],["Gehst du hoch?","Yukarı çıkıyor musun?"]]},
+    {de:"runtergehen",tr:"aşağı inmek",type:"Düzensiz",pron:"[ʁʊntagɛ:ən]",conj:["gehe runter","gehst runter","geht runter","gehen runter","geht runter","gehen runter"],examples:[["Ich gehe runter.","Aşağı iniyorum."],["Gehst du runter?","Aşağı iniyor musun?"]]},
+    {de:"weitermachen",tr:"devam etmek",type:"Düzenli",pron:"[vaitaʁmaxən]",conj:["mache weiter","machst weiter","macht weiter","machen weiter","macht weiter","machen weiter"],examples:[["Ich mache weiter.","Devam ediyorum."],["Machst du weiter?","Devam ediyor musun?"]]},
+    {de:"aufhören",tr:"bırakmak",type:"Düzenli",pron:"[aufhø:ʁən]",conj:["höre auf","hörst auf","hört auf","hören auf","hört auf","hören auf"],examples:[["Ich höre auf.","Bırakıyorum."],["Hörst du auf?","Bırakıyor musun?"]]},
+    {de:"anmelden",tr:"kaydolmak",type:"Düzenli",pron:"[anmɛldən]",conj:["melde an","meldest an","meldet an","melden an","meldet an","melden an"],examples:[["Ich melde mich an.","Kaydoluyorum."],["Meldest du dich an?","Kaydoluyor musun?"]]},
+    {de:"abmelden",tr:"kaydını silmek",type:"Düzenli",pron:"[apmɛldən]",conj:["melde ab","meldest ab","meldet ab","melden ab","meldet ab","melden ab"],examples:[["Ich melde mich ab.","Kaydımı siliyorum."],["Meldest du dich ab?","Kaydını siliyor musun?"]]},
+    {de:"umziehen",tr:"taşınmak",type:"Düzensiz",pron:"[umtsi:ən]",conj:["ziehe um","ziehst um","zieht um","ziehen um","zieht um","ziehen um"],examples:[["Ich ziehe um.","Taşınıyorum."],["Wann ziehst du um?","Ne zaman taşınıyorsun?"]]},
+    {de:"einziehen",tr:"yerleşmek",type:"Düzensiz",pron:"[aintsi:ən]",conj:["ziehe ein","ziehst ein","zieht ein","ziehen ein","zieht ein","ziehen ein"],examples:[["Ich ziehe ein.","Yerleşiyorum."],["Wann ziehst du ein?","Ne zaman yerleşiyorsun?"]]},
+    {de:"ausziehen",tr:"çıkarmak (giysi)",type:"Düzensiz",pron:"[austsi:ən]",conj:["ziehe aus","ziehst aus","zieht aus","ziehen aus","zieht aus","ziehen aus"],examples:[["Ich ziehe mich aus.","Soyunuyorum."],["Ziehst du dich aus?","Soyunuyor musun?"]]},
+    {de:"anprobieren",tr:"denemek (giysi)",type:"Düzenli",pron:"[anpʁo:bi:ʁən]",conj:["probiere an","probierst an","probiert an","probieren an","probiert an","probieren an"],examples:[["Ich probiere an.","Deniyorum."],["Probierst du an?","Deniyor musun?"]]},
+    {de:"passen",tr:"uymak",type:"Düzenli",pron:"[pasən]",conj:["passe","passt","passt","passen","passt","passen"],examples:[["Das passt mir.","Bu bana uyuyor."],["Passt dir das?","Sana uyuyor mu?"]]},
+    {de:"gefallen",tr:"hoşlanmak",type:"Düzensiz",pron:"[gəfalən]",conj:["gefalle","gefällst","gefällt","gefallen","gefällt","gefallen"],examples:[["Das gefällt mir.","Bu hoşuma gidiyor."],["Gefällt dir das?","Hoşuna gidiyor mu?"]]},
+    {de:"schmecken",tr:"tadı olmak",type:"Düzenli",pron:"[ʃmɛkən]",conj:["schmecke","schmeckst","schmeckt","schmecken","schmeckt","schmecken"],examples:[["Das schmeckt gut.","Tadı iyi."],["Schmeckt dir das?","Tadını beğendin mi?"]]},
+    {de:"fehlen",tr:"eksik olmak",type:"Düzenli",pron:"[fe:lən]",conj:["fehle","fehlst","fehlt","fehlen","fehlt","fehlen"],examples:[["Du fehlst mir.","Seni özledim."],["Wen fehlt es?","Kim eksik?"]]},
+    {de:"gehören",tr:"ait olmak",type:"Düzenli",pron:"[gəhø:ʁən]",conj:["gehöre","gehörst","gehört","gehören","gehört","gehören"],examples:[["Das gehört mir.","Bu bana ait."],["Wem gehört das?","Bu kime ait?"]]},
+    {de:"fliegen",tr:"uçmak",type:"Düzensiz",pron:"[fli:gən]",conj:["fliege","fliegst","fliegt","fliegen","fliegt","fliegen"],examples:[["Ich fliege nach Paris.","Paris'e uçuyorum."],["Fliegst du gern?","Uçmayı sever misin?"]]},
+    {de:"reisen",tr:"seyahat etmek",type:"Düzenli",pron:"[ʁaizən]",conj:["reise","reist","reist","reisen","reist","reisen"],examples:[["Ich reise viel.","Çok seyahat ederim."],["Reist du gern?","Seyahat etmeyi sever misin?"]]},
+    {de:"besuchen",tr:"ziyaret etmek",type:"Düzenli",pron:"[bəzu:xən]",conj:["besuche","besuchst","besucht","besuchen","besucht","besuchen"],examples:[["Ich besuche meine Oma.","Büyükannemi ziyaret ediyorum."],["Besuchst du oft?","Sık ziyaret eder misin?"]]},
+    {de:"treffen",tr:"buluşmak",type:"Düzensiz",pron:"[tʁɛfən]",conj:["treffe","triffst","trifft","treffen","trefft","treffen"],examples:[["Ich treffe dich.","Seninle buluşuyorum."],["Triffst du ihn?","Onunla buluşuyor musun?"]]},
+    {de:"kennen",tr:"bilmek/tanımak",type:"Düzenli",pron:"[kɛnən]",conj:["kenne","kennst","kennt","kennen","kennt","kennen"],examples:[["Ich kenne ihn.","Onu tanıyorum."],["Kennst du sie?","Onu tanıyor musun?"]]},
+    {de:"hoffen",tr:"ummak",type:"Düzenli",pron:"[hɔfən]",conj:["hoffe","hoffst","hofft","hoffen","hofft","hoffen"],examples:[["Ich hoffe ja.","Umarım evet."],["Hoffst du auch?","Sen de umuyor musun?"]]},
+    {de:"fürchten",tr:"korkmak",type:"Düzenli",pron:"[fʏʁçtən]",conj:["fürchte","fürchtest","fürchtet","fürchten","fürchtet","fürchten"],examples:[["Ich fürchte mich.","Korkuyorum."],["Fürchtest du dich?","Korkuyor musun?"]]},
+    {de:"hassen",tr:"nefret etmek",type:"Düzenli",pron:"[hasən]",conj:["hasse","hasst","hasst","hassen","hasst","hassen"],examples:[["Ich hasse das.","Bundan nefret ediyorum."],["Hasst du das?","Bundan nefret ediyor musun?"]]},
+    {de:"respektieren",tr:"saygı duymak",type:"Düzenli",pron:"[ʁɛspɛkti:ʁən]",conj:["respektiere","respektierst","respektiert","respektieren","respektiert","respektieren"],examples:[["Ich respektiere dich.","Sana saygı duyuyorum."],["Respektierst du mich?","Bana saygı duyuyor musun?"]]},
+    {de:"vertrauen",tr:"güvenmek",type:"Düzenli",pron:"[fɛatʁauən]",conj:["vertraue","vertraust","vertraut","vertrauen","vertraut","vertrauen"],examples:[["Ich vertraue dir.","Sana güveniyorum."],["Vertraust du mir?","Bana güveniyor musun?"]]},
+    {de:"zweifeln",tr:"şüphelenmek",type:"Düzenli",pron:"[tsvaifəln]",conj:["zweifle","zweifelst","zweifelt","zweifeln","zweifelt","zweifeln"],examples:[["Ich zweifle daran.","Bundan şüpheleniyorum."],["Zweifelst du?","Şüpheleniyor musun?"]]},
+    {de:"wünschen",tr:"dilemek",type:"Düzenli",pron:"[vʏnʃən]",conj:["wünsche","wünschst","wünscht","wünschen","wünscht","wünschen"],examples:[["Ich wünsche dir Glück.","Sana şans diliyorum."],["Was wünschst du dir?","Ne diliyorsun?"]]},
+    {de:"brauchen",tr:"ihtiyaç duymak",type:"Düzenli",pron:"[bʁauxən]",conj:["brauche","brauchst","braucht","brauchen","braucht","brauchen"],examples:[["Ich brauche Hilfe.","Yardıma ihtiyacım var."],["Brauchst du das?","Buna ihtiyacın var mı?"]]},
+    {de:"benötigen",tr:"gereksinim duymak",type:"Düzenli",pron:"[bənø:tigən]",conj:["benötige","benötigst","benötigt","benötigen","benötigt","benötigen"],examples:[["Ich benötige Zeit.","Zamana ihtiyacım var."],["Benötigst du Ruhe?","Sessizliğe mi ihtiyacın var?"]]},
+    {de:"besitzen",tr:"sahip olmak",type:"Düzensiz",pron:"[bəzitsən]",conj:["besitze","besitzt","besitzt","besitzen","besitzt","besitzen"],examples:[["Ich besitze ein Auto.","Arabam var."],["Besitzt du ein Haus?","Evin var mı?"]]},
+    {de:"mieten",tr:"kiralamak",type:"Düzenli",pron:"[mi:tən]",conj:["miete","mietest","mietet","mieten","mietet","mieten"],examples:[["Ich miete eine Wohnung.","Daire kiralıyorum."],["Mietest du oder kaufst du?","Kiralıyor musun alıyor musun?"]]},
+    {de:"verkaufen",tr:"satmak",type:"Düzenli",pron:"[fɛakaufən]",conj:["verkaufe","verkaufst","verkauft","verkaufen","verkauft","verkaufen"],examples:[["Ich verkaufe das.","Bunu satıyorum."],["Verkaufst du das Auto?","Arabayı satıyor musun?"]]},
+    {de:"schenken",tr:"hediye etmek",type:"Düzenli",pron:"[ʃɛŋkən]",conj:["schenke","schenkst","schenkt","schenken","schenkt","schenken"],examples:[["Ich schenke dir das.","Bunu sana hediye ediyorum."],["Schenkst du mir das?","Bunu bana hediye ediyor musun?"]]},
+    {de:"leihen",tr:"ödünç almak",type:"Düzensiz",pron:"[laiən]",conj:["leihe","leihst","leiht","leihen","leiht","leihen"],examples:[["Ich leihe das Buch.","Kitabı ödünç alıyorum."],["Leihst du mir Geld?","Bana para ödünç verir misin?"]]},
+    {de:"borgen",tr:"ödünç almak (argo)",type:"Düzenli",pron:"[bɔʁgən]",conj:["borge","borgst","borgt","borgen","borgt","borgen"],examples:[["Ich borge das.","Bunu ödünç alıyorum."],["Borgst du mir das?","Bunu bana ödünç verir misin?"]]},
+    {de:"sparen",tr:"biriktirmek",type:"Düzenli",pron:"[ʃpa:ʁən]",conj:["spare","sparst","spart","sparen","spart","sparen"],examples:[["Ich spare Geld.","Para biriktiriyorum."],["Sparst du viel?","Çok mu biriktiriyorsun?"]]},
+    {de:"verschwenden",tr:"israf etmek",type:"Düzenli",pron:"[fɛaʃvɛndən]",conj:["verschwende","verschwendest","verschwendet","verschwenden","verschwendet","verschwenden"],examples:[["Ich verschwende nichts.","Hiçbir şey israf etmiyorum."],["Verschwendest du Geld?","Para mı israf ediyorsun?"]]},
+        {de:"verdienen",tr:"kazanmak (para)",type:"Düzenli",pron:"[fɛadi:nən]",conj:["verdiene","verdienst","verdient","verdienen","verdient","verdienen"],examples:[["Ich verdiene gut.","İyi para kazanıyorum."],["Wie viel verdienst du?","Ne kadar kazanıyorsun?"]]},
+    {de:"jobben",tr:"iş yapmak (part-time)",type:"Düzenli",pron:"[dʒɔbən]",conj:["jobbe","jobbst","jobbt","jobben","jobbt","jobben"],examples:[["Ich jobbe nebenbei.","Yan iş yapıyorum."],["Jobbst du auch?","Sen de iş yapıyor musun?"]]},
+    {de:"studieren",tr:"okumak (üniversite)",type:"Düzenli",pron:"[ʃtudi:ʁən]",conj:["studiere","studierst","studiert","studieren","studiert","studieren"],examples:[["Ich studiere BWL.","İşletme okuyorum."],["Was studierst du?","Ne okuyorsun?"]]},
+    {de:"üben",tr:"alıştırma yapmak",type:"Düzenli",pron:"[y:bən]",conj:["übe","übst","übt","üben","übt","üben"],examples:[["Ich übe Klavier.","Piyano çalışıyorum."],["Übst du jeden Tag?","Her gün çalışıyor musun?"]]},
+    {de:"prüfen",tr:"sınamak/kontrol etmek",type:"Düzenli",pron:"[pʁy:fən]",conj:["prüfe","prüfst","prüft","prüfen","prüft","prüfen"],examples:[["Ich prüfe das.","Bunu kontrol ediyorum."],["Prüfst du die Antworten?","Cevapları kontrol ediyor musun?"]]},
+    {de:"bestehen",tr:"geçmek (sınav)",type:"Düzensiz",pron:"[bəʃte:ən]",conj:["bestehe","bestehst","besteht","bestehen","besteht","bestehen"],examples:[["Ich bestehe die Prüfung.","Sınavı geçiyorum."],["Bestehst du?","Geçiyor musun?"]]},
+    {de:"durchfallen",tr:"kalmak (sınav)",type:"Düzensiz",pron:"[dʊʁçfalən]",conj:["falle durch","fällst durch","fällt durch","fallen durch","fallt durch","fallen durch"],examples:[["Ich falle durch.","Kaldım."],["Fällst du durch?","Kaldın mı?"]]},
+    {de:"sitzenbleiben",tr:"sınıfta kalmak",type:"Düzensiz",pron:"[zitsənblaibən]",conj:["bleibe sitzen","bleibst sitzen","bleibt sitzen","bleiben sitzen","bleibt sitzen","bleiben sitzen"],examples:[["Ich bleibe sitzen.","Sınıfta kalıyorum."],["Bleibst du sitzen?","Sınıfta kalıyor musun?"]]},
+    {de:"versetzen",tr:"geçirmek (sınıf)",type:"Düzenli",pron:"[fɛazɛtsən]",conj:["versetze","versetzt","versetzt","versetzen","versetzt","versetzen"],examples:[["Man versetzt mich.","Beni geçiriyorlar."],["Wird er versetzt?","O geçirilecek mi?"]]},
+    {de:"schwänzen",tr:"kırmak (okul)",type:"Düzenli",pron:"[ʃvɛntsən]",conj:["schwänze","schwänzt","schwänzt","schwänzen","schwänzt","schwänzen"],examples:[["Ich schwänze die Schule.","Okul kırıyorum."],["Schwänzt du oft?","Sık kırar mısın?"]]},
+    {de:"pauken",tr:"hızlıca çalışmak",type:"Düzenli",pron:"[paukən]",conj:["pauke","paukst","paukt","pauken","paukt","pauken"],examples:[["Ich pauke für die Prüfung.","Sınav için hızlıca çalışıyorum."],["Paukst du viel?","Çok mu ezber yapıyorsun?"]]},
+    {de:"rechnen",tr:"hesaplamak",type:"Düzenli",pron:"[ʁɛçnən]",conj:["rechne","rechnest","rechnet","rechnen","rechnet","rechnen"],examples:[["Ich rechne schnell.","Hızlı hesaplarım."],["Rechnest du im Kopf?","Aklından hesap yapar mısın?"]]},
+    {de:"zählen",tr:"saymak",type:"Düzenli",pron:"[tsɛ:lən]",conj:["zähle","zählst","zählt","zählen","zählt","zählen"],examples:[["Ich zähle bis zehn.","Ona kadar sayıyorum."],["Zählst du mit?","Sen de sayıyor musun?"]]},
+    {de:"messen",tr:"ölçmek",type:"Düzensiz",pron:"[mɛsən]",conj:["messe","misst","misst","messen","messt","messen"],examples:[["Ich messe das.","Bunu ölçüyorum."],["Misst du genau?","Tam ölçüyor musun?"]]},
+    {de:"wiegen",tr:"tartmak",type:"Düzensiz",pron:"[vi:gən]",conj:["wiege","wiegst","wiegt","wiegen","wiegt","wiegen"],examples:[["Ich wiege mich.","Tartılıyorum."],["Wie viel wiegst du?","Kaç kilosun?"]]},
+    {de:"vergleichen",tr:"karşılaştırmak",type:"Düzensiz",pron:"[fɛaglaicən]",conj:["vergleiche","vergleichst","vergleicht","vergleichen","vergleicht","vergleichen"],examples:[["Ich vergleiche die Preise.","Fiyatları karşılaştırıyorum."],["Vergleichst du oft?","Sık karşılaştırır mısın?"]]},
+    {de:"wählen",tr:"seçmek/oy vermek",type:"Düzenli",pron:"[vɛ:lən]",conj:["wähle","wählst","wählt","wählen","wählt","wählen"],examples:[["Ich wähle die Grünen.","Yeşilleri seçiyorum."],["Wen wählst du?","Kimi seçiyorsun?"]]},
+    {de:"entscheiden",tr:"karar vermek",type:"Düzensiz",pron:"[ɛntʃaidən]",conj:["entscheide","entscheidest","entscheidet","entscheiden","entscheidet","entscheiden"],examples:[["Ich entscheide mich.","Karar veriyorum."],["Entscheidest du dich?","Karar veriyor musun?"]]},
+    {de:"trennen",tr:"ayırmak",type:"Düzenli",pron:"[tʁɛnən]",conj:["trenne","trennst","trennt","trennen","trennt","trennen"],examples:[["Ich trenne das.","Bunu ayırıyorum."],["Trennst du Müll?","Çöpü ayırıyor musun?"]]},
+    {de:"ordnen",tr:"düzenlemek",type:"Düzenli",pron:"[ɔʁdnən]",conj:["ordne","ordnest","ordnet","ordnen","ordnet","ordnen"],examples:[["Ich ordne die Unterlagen.","Belgeleri düzenliyorum."],["Ordnest du dein Zimmer?","Odanda düzenleme yapıyor musun?"]]},
+    {de:"sortieren",tr:"sınıflandırmak",type:"Düzenli",pron:"[zɔʁti:ʁən]",conj:["sortiere","sortierst","sortiert","sortieren","sortiert","sortieren"],examples:[["Ich sortiere die Briefe.","Mektubları sınıflandırıyorum."],["Sortierst du die Wäsche?","Çamaşırları ayırıyor musun?"]]},
+    {de:"verlieren",tr:"kaybetmek",type:"Düzenli",pron:"[fɛali:ʁən]",conj:["verliere","verlierst","verliert","verlieren","verliert","verlieren"],examples:[["Ich verliere nie.","Asla kaybetmem."],["Verlierst du oft?","Sık kaybeder misin?"]]},
+    {de:"gewinnen",tr:"kazanmak",type:"Düzenli",pron:"[gəvinən]",conj:["gewinne","gewinnst","gewinnt","gewinnen","gewinnt","gewinnen"],examples:[["Ich gewinne das Spiel.","Oyunu kazanıyorum."],["Gewinnst du oft?","Sık kazanır mısın?"]]},
+    {de:"verdienen",tr:"hak etmek",type:"Düzenli",pron:"[fɛadi:nən]",conj:["verdiene","verdienst","verdient","verdienen","verdient","verdienen"],examples:[["Ich verdiene Respekt.","Saygıyı hak ediyorum."],["Verdienst du das?","Bunu hak ediyor musun?"]]},
+    {de:"bekommen",tr:"almak (hediye)",type:"Düzenli",pron:"[bəkɔmən]",conj:["bekomme","bekommst","bekommt","bekommen","bekommt","bekommen"],examples:[["Ich bekomme ein Geschenk.","Hediye alıyorum."],["Was bekommst du?","Ne alıyorsun?"]]},
+    {de:"kriegen",tr:"almak (argo)",type:"Düzenli",pron:"[kʁi:gən]",conj:["kriege","kriegst","kriegt","kriegen","kriegt","kriegen"],examples:[["Ich kriege das hin.","Bunu hallediyorum."],["Kriegst du das?","Bunu alıyor musun?"]]},
+    {de:"holen",tr:"getirmek/almak",type:"Düzenli",pron:"[ho:lən]",conj:["hole","holst","holt","holen","holt","holen"],examples:[["Ich hole das Buch.","Kitabı getiriyorum."],["Holst du mich ab?","Beni almaya gelir misin?"]]},
+    {de:"anziehen",tr:"giyinmek",type:"Düzensiz",pron:"[antsi:ən]",conj:["ziehe an","ziehst an","zieht an","ziehen an","zieht an","ziehen an"],examples:[["Ich ziehe mich an.","Giyiniyorum."],["Ziehst du dich warm an?","Sıcak giyiniyor musun?"]]},
+    {de:"wechseln",tr:"değiştirmek",type:"Düzenli",pron:"[vɛksəln]",conj:["wechsle","wechselst","wechselt","wechseln","wechselt","wechseln"],examples:[["Ich wechsle die Kleidung.","Kıyafet değiştiriyorum."],["Wechselst du oft?","Sık değiştirir misin?"]]},
+    {de:"putzen",tr:"temizlemek",type:"Düzenli",pron:"[pʊtsən]",conj:["putze","putzt","putzt","putzen","putzt","putzen"],examples:[["Ich putze das Zimmer.","Odayı temizliyorum."],["Putzt du oft?","Sık temizler misin?"]]},
+    {de:"kehren",tr:"süpürmek",type:"Düzenli",pron:"[ke:ʁən]",conj:["kehre","kehrst","kehrt","kehren","kehrt","kehren"],examples:[["Ich kehre den Boden.","Yeri süpürüyorum."],["Kehrst du die Straße?","Sokağı süpürüyor musun?"]]},
+    {de:"wischen",tr:"silmek",type:"Düzenli",pron:"[vɪʃən]",conj:["wische","wischst","wischt","wischen","wischt","wischen"],examples:[["Ich wische den Tisch.","Masayı siliyorum."],["Wischst du den Boden?","Yeri siliyor musun?"]]},
+    {de:"staubsaugen",tr:"elektrikli süpürge yapmak",type:"Düzenli",pron:"[staupzaugən]",conj:["staubsauge","staubsaugst","staubsaugt","staubsaugen","staubsaugt","staubsaugen"],examples:[["Ich staubsauge das Zimmer.","Odayı elektrikli süpürgeyle temizliyorum."],["Staubsaugst du oft?","Sık süpürür müsün?"]]},
+    {de:"aufräumen",tr:"toparlamak",type:"Düzenli",pron:"[aufʁɔymən]",conj:["räume auf","räumst auf","räumt auf","räumen auf","räumt auf","räumen auf"],examples:[["Ich räume auf.","Toparlıyorum."],["Räumst du dein Zimmer auf?","Odanı toparlıyor musun?"]]},
+    {de:"kochen",tr:"pişirmek",type:"Düzenli",pron:"[kɔxən]",conj:["koche","kochst","kocht","kochen","kocht","kochen"],examples:[["Ich koche gern.","Yemek yapmayı severim."],["Kochst du gut?","İyi yemek yapar mısın?"]]},
+    {de:"backen",tr:"fırında pişirmek",type:"Düzensiz",pron:"[bakən]",conj:["backe","bäckst","bäckt","backen","backt","backen"],examples:[["Ich backe Kuchen.","Kek yapıyorum."],["Backst du gern?","Fırında pişirmeyi sever misin?"]]},
+    {de:"braten",tr:"kızartmak",type:"Düzenli",pron:"[bʁa:tən]",conj:["brate","brätst","brät","braten","bratet","braten"],examples:[["Ich brate Fleisch.","Et kızartıyorum."],["Brätst du Fisch?","Balık kızartır mısın?"]]},
+    {de:"schneiden",tr:"kesmek",type:"Düzensiz",pron:"[ʃnaidən]",conj:["schneide","schneidest","schneidet","schneiden","schneidet","schneiden"],examples:[["Ich schneide das Brot.","Ekmeği kesiyorum."],["Schneidest du die Zwiebeln?","Soğanları kesiyor musun?"]]},
+    {de:"rühren",tr:"karıştırmak",type:"Düzenli",pron:"[ʁy:ʁən]",conj:["rühre","rührst","rührt","rühren","rührt","rühren"],examples:[["Ich rühre die Suppe.","Çorbayı karıştırıyorum."],["Rührst du gut?","İyi karıştırıyor musun?"]]},
+    {de:"schälen",tr:"soymak",type:"Düzenli",pron:"[ʃɛ:lən]",conj:["schäle","schälst","schält","schälen","schält","schälen"],examples:[["Ich schäle die Kartoffeln.","Patatesleri soyuyorum."],["Schälst du die Äpfel?","Elmaları soyuyor musun?"]]},
+    {de:"reiben",tr:"rendelemek",type:"Düzensiz",pron:"[ʁaibən]",conj:["reibe","reibst","reibt","reiben","reibt","reiben"],examples:[["Ich reibe den Käse.","Peyniri rendeliyorum."],["Reibst du die Karotten?","Havuçları rendeliyor musun?"]]},
+    {de:"mischen",tr:"karıştırmak",type:"Düzenli",pron:"[mɪʃən]",conj:["mische","mischst","mischt","mischen","mischt","mischen"],examples:[["Ich mische den Salat.","Salatayı karıştırıyorum."],["Mischst du das Getränk?","İçeceği karıştırıyor musun?"]]},
+    {de:"gießen",tr:"dökmek (su)",type:"Düzensiz",pron:"[gi:sən]",conj:["gieße","gießt","gießt","gießen","gießt","gießen"],examples:[["Ich gieße die Blumen.","Çiçekleri suluyorum."],["Gießt du zu viel?","Çok mu döküyorsun?"]]},
+    {de:"schmoren",tr:"kavurmak",type:"Düzenli",pron:"[ʃmo:ʁən]",conj:["schmore","schmorst","schmort","schmoren","schmort","schmoren"],examples:[["Ich schmore das Fleisch.","Et kavuruyorum."],["Schmorst du lange?","Uzun kavurur musun?"]]},
+    {de:"dünsten",tr:"buharda pişirmek",type:"Düzenli",pron:"[dʏnstən]",conj:["dünste","dünstest","dünstet","dünsten","dünstet","dünsten"],examples:[["Ich dünste das Gemüse.","Sebzeyi buharda pişiriyorum."],["Dünstest du oft?","Sık buharda pişirir misin?"]]},
+    {de:"sieden",tr:"kaynatmak",type:"Düzenli",pron:"[zi:dən]",conj:["siede","siedest","siedet","sieden","siedet","sieden"],examples:[["Ich siede das Wasser.","Suyu kaynatıyorum."],["Siedest du Milch?","Süt kaynatır mısın?"]]},
+    {de:"grillen",tr:"ızgara yapmak",type:"Düzenli",pron:"[gʁilən]",conj:["grille","grillst","grillt","grillen","grillt","grillen"],examples:[["Ich grille am Wochenende.","Hafta sonu ızgara yapıyorum."],["Grillst du gern?","Izgara yapmayı sever misin?"]]},
+    {de:"anbrennen",tr:"yanmak (yemek)",type:"Düzensiz",pron:"[anbʁɛnən]",conj:["brenne an","brennst an","brennt an","brennen an","brennt an","brennen an"],examples:[["Das Essen brennt an.","Yemek yanıyor."],["Brennt das an?","Bu yanıyor mu?"]]},
+    {de:"verbrennen",tr:"yakmak",type:"Düzensiz",pron:"[fɛabʁɛnən]",conj:["verbrenne","verbrennst","verbrennt","verbrennen","verbrennt","verbrennen"],examples:[["Ich verbrenne mich.","Kendimi yakıyorum."],["Verbrennst du dich oft?","Sık kendini yakıyor musun?"]]},
+    {de:"riechen",tr:"koklamak",type:"Düzensiz",pron:"[ʁi:çən]",conj:["rieche","riechst","riecht","riechen","riecht","riechen"],examples:[["Ich rieche Blumen.","Çiçekleri kokluyorum."],["Riechst du das?","Bunu kokluyor musun?"]]},
+    {de:"schauen",tr:"bakmak",type:"Düzenli",pron:"[ʃauən]",conj:["schaue","schaust","schaut","schauen","schaut","schauen"],examples:[["Ich schaue aus dem Fenster.","Pencereden bakıyorum."],["Schaust du fern?","Televizyon izliyor musun?"]]},
+    {de:"gucken",tr:"bakmak (argo)",type:"Düzenli",pron:"[gʊkən]",conj:["gucke","guckst","guckt","gucken","guckt","gucken"],examples:[["Ich gucke den Film.","Filme bakıyorum."],["Guckst du mit?","Sen de bakıyor musun?"]]},
+    {de:"beobachten",tr:"gözlemlemek",type:"Düzenli",pron:"[bəɔbaxtən]",conj:["beobachte","beobachtest","beobachtet","beobachten","beobachtet","beobachten"],examples:[["Ich beobachte die Vögel.","Kuşları gözlemliyorum."],["Beobachtest du oft?","Sık gözlemler misin?"]]},
+    {de:"betrachten",tr:"incelemek",type:"Düzenli",pron:"[bətraçtən]",conj:["betrachte","betrachtest","betrachtet","betrachten","betrachtet","betrachten"],examples:[["Ich betrachte das Bild.","Resmi inceliyorum."],["Betrachtest du das genau?","Bunu dikkatlice inceliyor musun?"]]},
+    {de:"anschauen",tr:"izlemek",type:"Düzenli",pron:"[anʃauən]",conj:["schaue an","schaust an","schaut an","schauen an","schaut an","schauen an"],examples:[["Ich schaue den Film an.","Filmi izliyorum."],["Schaut ihr das an?","Bunu izliyor musunuz?"]]},
+    {de:"lauschen",tr:"kulak asmak",type:"Düzenli",pron:"[lauʃən]",conj:["lausche","lauschst","lauscht","lauschen","lauscht","lauschen"],examples:[["Ich lausche dem Wind.","Rüzgara kulak kesiliyorum."],["Lauschst du gern?","Kulak asmeyı sever misin?"]]},
+    {de:"fühlen",tr:"hissetmek",type:"Düzenli",pron:"[fy:lən]",conj:["fühle","fühlst","fühlt","fühlen","fühlt","fühlen"],examples:[["Ich fühle mich gut.","Kendimi iyi hissediyorum."],["Fühlst du das?","Bunu hissediyor musun?"]]},
+    {de:"spüren",tr:"hissetmek/sezmek",type:"Düzenli",pron:"[ʃpy:ʁən]",conj:["spüre","spürst","spürt","spüren","spürt","spüren"],examples:[["Ich spüre die Kälte.","Soğuğu hissediyorum."],["Spürst du den Schmerz?","Acıyı hissediyor musun?"]]},
+    {de:"berühren",tr:"dokunmak",type:"Düzenli",pron:"[bəʁy:ʁən]",conj:["berühre","berührst","berührt","berühren","berührt","berühren"],examples:[["Ich berühre das Glas.","Bardağa dokunuyorum."],["Berührst du mich?","Bana dokunuyor musun?"]]},
+    {de:"küssen",tr:"öpmek",type:"Düzenli",pron:"[kʏsən]",conj:["küsse","küsst","küsst","küssen","küsst","küssen"],examples:[["Ich küsse dich.","Seni öpüyorum."],["Küsst du mich?","Beni öpüyor musun?"]]},
+    {de:"umarmen",tr:"sarılmak",type:"Düzenli",pron:"[umaʁmən]",conj:["umarme","umarmst","umarmt","umarmen","umarmt","umarmen"],examples:[["Ich umarme dich.","Sana sarılıyorum."],["Umarmst du mich?","Bana sarılıyor musun?"]]},
+    {de:"halten",tr:"tutmak",type:"Düzensiz",pron:"[haltən]",conj:["halte","hältst","hält","halten","haltet","halten"],examples:[["Ich halte das Buch.","Kitabı tutuyorum."],["Hältst du mich fest?","Beni sıkı tutuyor musun?"]]},
+    {de:"drücken",tr:"itmek/basmak",type:"Düzenli",pron:"[dʁʏkən]",conj:["drücke","drückst","drückt","drücken","drückt","drücken"],examples:[["Ich drücke den Knopf.","Düğmeye basıyorum."],["Drückst du fest?","Sert basıyor musun?"]]},
+    {de:"schieben",tr:"itmek/sürmek",type:"Düzensiz",pron:"[ʃi:bən]",conj:["schiebe","schiebst","schiebt","schieben","schiebt","schieben"],examples:[["Ich schiebe das Auto.","Arabayı itiyorum."],["Schiebst du den Tisch?","Masayı itiyor musun?"]]},
+    {de:"fangen",tr:"tutmak/yakalamak",type:"Düzensiz",pron:"[faŋən]",conj:["fange","fängst","fängt","fangen","fangt","fangen"],examples:[["Ich fange den Ball.","Topu yakalıyorum."],["Fängst du gut?","İyi yakalar mısın?"]]},
+    {de:"springen",tr:"zıplamak",type:"Düzensiz",pron:"[ʃpʁiŋən]",conj:["springe","springst","springt","springen","springt","springen"],examples:[["Ich springe hoch.","Yukarı zıplıyorum."],["Springst du weit?","Uzağa zıplar mısın?"]]},
+    {de:"singen",tr:"şarkı söylemek",type:"Düzensiz",pron:"[ziŋən]",conj:["singe","singst","singt","singen","singt","singen"],examples:[["Ich singe laut.","Yüksek sesle şarkı söylüyorum."],["Singst du im Chor?","Koroda şarkı söyler misin?"]]},
+    {de:"malen",tr:"boyamak/resim yapmak",type:"Düzenli",pron:"[ma:lən]",conj:["male","malt","malt","malen","malt","malen"],examples:[["Ich male ein Bild.","Resim yapıyorum."],["Malt er gut?","İyi resim yapar mı?"]]},
+    {de:"zeichnen",tr:"çizmek",type:"Düzenli",pron:"[tsaicnən]",conj:["zeichne","zeichnest","zeichnet","zeichnen","zeichnet","zeichnen"],examples:[["Ich zeichne eine Katze.","Kedi çiziyorum."],["Zeichnest du gern?","Çizmeyi sever misin?"]]},
+    {de:"fotografieren",tr:"fotoğraf çekmek",type:"Düzenli",pron:"[fɔtɔgʁafi:ʁən]",conj:["fotografiere","fotografierst","fotografiert","fotografieren","fotografiert","fotografieren"],examples:[["Ich fotografiere gern.","Fotoğraf çekmeyi severim."],["Fotografierst du oft?","Sık fotoğraf çeker misin?"]]},
+    {de:"empfehlen",tr:"tavsiye etmek",type:"Düzensiz",pron:"[ɛmpfe:lən]",conj:["empfehle","empfiehlst","empfiehlt","empfehlen","empfehlt","empfehlen"],examples:[["Ich empfehle das.","Bunu tavsiye ederim."],["Was empfiehlst du?","Ne tavsiye edersin?"]]},
+    {de:"erklären",tr:"açıklamak",type:"Düzenli",pron:"[ɛaklɛ:ʁən]",conj:["erkläre","erklärst","erklärt","erklären","erklärt","erklären"],examples:[["Ich erkläre das.","Bunu açıklıyorum."],["Erklärst du mir das?","Bunu bana açıklar mısın?"]]},
+    {de:"glauben",tr:"inanmak/sanmak",type:"Düzenli",pron:"[glaubən]",conj:["glaube","glaubst","glaubt","glauben","glaubt","glauben"],examples:[["Ich glaube dir.","Sana inanıyorum."],["Glaubst du das?","Buna inanıyor musun?"]]},
+    {de:"kosten",tr:"mal olmak",type:"Düzenli",pron:"[kɔstən]",conj:["koste","kostest","kostet","kosten","kostet","kosten"],examples:[["Das kostet 10 Euro.","Bu 10 Euro tutuyor."],["Was kostet das?","Bu ne kadar?"]]},
+    {de:"empfinden",tr:"hissetmek/duymak",type:"Düzensiz",pron:"[ɛmpfindən]",conj:["empfinde","empfindest","empfindet","empfinden","empfindet","empfinden"],examples:[["Ich empfinde Freude.","Sevinç duyuyorum."],["Empfindest du das auch?","Sen de bunu hissediyor musun?"]]},
+    {de:"schämen",tr:"utanmak",type:"Düzenli",pron:"[ʃɛ:mən]",conj:["schäme","schämst","schämt","schämen","schämt","schämen"],examples:[["Ich schäme mich.","Utanıyorum."],["Schämst du dich?","Utanıyor musun?"]]},
+    {de:"ängstigen",tr:"korkmak/endişelenmek",type:"Düzenli",pron:"[ɛŋstigən]",conj:["ängstige","ängstigst","ängstigt","ängstigen","ängstigt","ängstigen"],examples:[["Ich ängstige mich.","Endişeleniyorum."],["Ängstigst du dich?","Endişeleniyor musun?"]]},
+    {de:"wundern",tr:"şaşırmak",type:"Düzenli",pron:"[vʊndən]",conj:["wundere","wunderst","wundert","wundern","wundert","wundern"],examples:[["Ich wundere mich.","Şaşırıyorum."],["Wunderst du dich?","Şaşırıyor musun?"]]},
+    {de:"freuen",tr:"sevinmek",type:"Düzenli",pron:"[fʁɔyən]",conj:["freue","freust","freut","freuen","freut","freuen"],examples:[["Ich freue mich.","Seviniyorum."],["Freust du dich?","Seviniyor musun?"]]},
+    {de:"interessieren",tr:"ilgilenmek",type:"Düzenli",pron:"[ɪntɛʁesi:ʁən]",conj:["interessiere","interessierst","interessiert","interessieren","interessiert","interessieren"],examples:[["Ich interessiere mich für Musik.","Müzikle ilgileniyorum."],["Interessierst du dich für Sport?","Sporla ilgileniyor musun?"]]},
+    {de:"langweilen",tr:"sıkılmak",type:"Düzenli",pron:"[laŋvailən]",conj:["langweile","langweilst","langweilt","langweilen","langweilt","langweilen"],examples:[["Ich langweile mich.","Sıkılıyorum."],["Langweilst du dich?","Sıkılıyor musun?"]]},
+    {de:"erkälten",tr:"soğuk algınlığına yakalanmak",type:"Düzenli",pron:"[ɛakɛltən]",conj:["erkälte","erkältest","erkältet","erkälten","erkältet","erkälten"],examples:[["Ich erkälte mich.","Soğuk algınlığına yakalandım."],["Erkältest du dich oft?","Sık sık hastalanıyor musun?"]]},
+    {de:"verletzen",tr:"yaralanmak",type:"Düzenli",pron:"[fɛalɛtsən]",conj:["verletze","verletzt","verletzt","verletzen","verletzt","verletzen"],examples:[["Ich verletze mich.","Kendimi yaralıyorum."],["Verletzt du dich oft?","Sık yaralanıyor musun?"]]},
+    {de:"erkundigen",tr:"bilgi almak",type:"Düzenli",pron:"[ɛakʊndigən]",conj:["erkundige","erkundigst","erkundigt","erkundigen","erkundigt","erkundigen"],examples:[["Ich erkundige mich.","Bilgi alıyorum."],["Erkundigst du dich?","Bilgi alıyor musun?"]]},
+    {de:"beeilen",tr:"acele etmek",type:"Düzenli",pron:"[bəailən]",conj:["beeile","beeilst","beeilt","beeilen","beeilt","beeilen"],examples:[["Ich beeile mich.","Acele ediyorum."],["Beeilst du dich?","Acele ediyor musun?"]]},
+    {de:"entspannen",tr:"rahatlamak",type:"Düzenli",pron:"[ɛntʃpanən]",conj:["entspanne","entspannst","entspannt","entspannen","entspannt","entspannen"],examples:[["Ich entspanne mich.","Rahatlıyorum."],["Entspannst du dich?","Rahatlıyor musun?"]]},
+    {de:"konzentrieren",tr:"konsantre olmak",type:"Düzenli",pron:"[kɔntsentʁi:ʁən]",conj:["konzentriere","konzentrierst","konzentriert","konzentrieren","konzentriert","konzentrieren"],examples:[["Ich konzentriere mich.","Konsantre oluyorum."],["Konzentrierst du dich?","Konsantre oluyor musun?"]]},
+    {de:"beschäftigen",tr:"meşgul olmak",type:"Düzenli",pron:"[bəʃɛftigən]",conj:["beschäftige","beschäftigst","beschäftigt","beschäftigen","beschäftigt","beschäftigen"],examples:[["Ich beschäftige mich mit Musik.","Müzikle meşgul oluyorum."],["Beschäftigst du dich?","Meşgul oluyor musun?"]]},
+    {de:"treffen",tr:"buluşmak",type:"Düzensiz",pron:"[tʁɛfən]",conj:["treffe","triffst","trifft","treffen","trefft","treffen"],examples:[["Ich treffe dich.","Seninle buluşuyorum."],["Triffst du ihn?","Onunla buluşuyor musun?"]]},
+    {de:"einladen",tr:"davet etmek",type:"Düzensiz",pron:"[ainla:dən]",conj:["lade ein","lädst ein","lädt ein","laden ein","ladet ein","laden ein"],examples:[["Ich lade dich ein.","Seni davet ediyorum."],["Lädst du mich ein?","Beni davet ediyor musun?"]]},
+    {de:"besuchen",tr:"ziyaret etmek",type:"Düzenli",pron:"[bəzu:xən]",conj:["besuche","besuchst","besucht","besuchen","besucht","besuchen"],examples:[["Ich besuche meine Oma.","Büyükannemi ziyaret ediyorum."],["Besuchst du oft?","Sık ziyaret eder misin?"]]},
+    {de:"grüßen",tr:"selam vermek",type:"Düzenli",pron:"[gʁy:sən]",conj:["grüße","grüßt","grüßt","grüßen","grüßt","grüßen"],examples:[["Ich grüße dich.","Sana selam veriyorum."],["Grüßt du mich?","Bana selam veriyor musun?"]]},
+    {de:"verabschieden",tr:"vedalaşmak",type:"Düzenli",pron:"[fɛapʃi:dən]",conj:["verabschiede","verabschiedest","verabschiedet","verabschieden","verabschiedet","verabschieden"],examples:[["Ich verabschiede mich.","Vedalaşıyorum."],["Verabschiedest du dich?","Vedalaşıyor musun?"]]},
+    {de:"sichern",tr:"garanti etmek/güvence altına almak",type:"Düzenli",pron:"[zɪçən]",conj:["sichere","sicherst","sichert","sichern","sichert","sichern"],examples:[["Ich sichere das.","Bunu garanti altına alıyorum."],["Sicherst du das?","Bunu güvence altına alıyor musun?"]]},
+    {de:"riskieren",tr:"risk almak",type:"Düzenli",pron:"[ʁiski:ʁən]",conj:["riskiere","riskierst","riskiert","riskieren","riskiert","riskieren"],examples:[["Ich riskiere das.","Risk alıyorum."],["Riskierst du?","Risk alıyor musun?"]]},
+    {de:"wagen",tr:"cesaret etmek",type:"Düzenli",pron:"[va:gən]",conj:["wage","wagst","wagt","wagen","wagt","wagen"],examples:[["Ich wage es.","Cesaret ediyorum."],["Wagst du das?","Bunu cesaret ediyor musun?"]]},
+    {de:"zögern",tr:"tereddüt etmek",type:"Düzenli",pron:"[tsø:gən]",conj:["zögere","zögerst","zögert","zögern","zögert","zögern"],examples:[["Ich zögere.","Tereddüt ediyorum."],["Zögerst du?","Tereddüt ediyor musun?"]]},
+    {de:"versuchen",tr:"denemek",type:"Düzenli",pron:"[fɛazu:xən]",conj:["versuche","versuchst","versucht","versuchen","versucht","versuchen"],examples:[["Ich versuche das.","Bunu deniyorum."],["Versuchst du es?","Deniyor musun?"]]},
+    {de:"schaffen",tr:"başarmak/yapmak",type:"Düzensiz",pron:"[ʃafən]",conj:["schaffe","schaffst","schafft","schaffen","schafft","schaffen"],examples:[["Ich schaffe das.","Bunu başarıyorum."],["Schaffst du es?","Başarıyor musun?"]]},
+    {de:"schaffen",tr:"yaratmak",type:"Düzensiz",pron:"[ʃa:fən]",conj:["schaffe","schaffst","schafft","schaffen","schafft","schaffen"],examples:[["Ich schaffe Kunst.","Sanat yaratıyorum."],["Schaffst du Musik?","Müzik yaratıyor musun?"]]},
+    {de:"bewegen",tr:"hareket etmek",type:"Düzenli",pron:"[bəve:gən]",conj:["bewege","bewegst","bewegt","bewegen","bewegt","bewegen"],examples:[["Ich bewege mich.","Hareket ediyorum."],["Bewegst du dich?","Hareket ediyor musun?"]]},
+    {de:"drehen",tr:"çevirmek/döndürmek",type:"Düzenli",pron:"[dʁe:ən]",conj:["drehe","drehst","dreht","drehen","dreht","drehen"],examples:[["Ich drehe mich um.","Arkamı dönüyorum."],["Drehst du dich?","Dönüyor musun?"]]},
+    {de:"biegen",tr:"bükmek",type:"Düzensiz",pron:"[bi:gən]",conj:["biege","biegst","biegt","biegen","biegt","biegen"],examples:[["Ich biege das Blech.","Sacı büküyorum."],["Biegst du das?","Bunu büküyor musun?"]]},
+    {de:"brechen",tr:"kırmak",type:"Düzensiz",pron:"[bʁɛçən]",conj:["breche","brichst","bricht","brechen","brecht","brechen"],examples:[["Ich breche das Brot.","Ekmeği kırıyorum."],["Brichst du das?","Bunu kırıyor musun?"]]},
+    {de:"zerbrechen",tr:"parçalamak",type:"Düzensiz",pron:"[tsɛabʁɛçən]",conj:["zerbreche","zerbrichst","zerbricht","zerbrechen","zerbrecht","zerbrechen"],examples:[["Ich zerbreche das Glas.","Bardağı parçalıyorum."],["Zerbrichst du das?","Bunu parçalıyor musun?"]]},
+    {de:"knacken",tr:"çatırdamak/kırmak",type:"Düzenli",pron:"[knakən]",conj:["knacke","knackst","knackt","knacken","knackt","knacken"],examples:[["Ich knack die Nüsse.","Fındık kırıyorum."],["Knackst du das?","Bunu kırıyor musun?"]]},
+    {de:"quetschen",tr:"sıkmak/ezmek",type:"Düzenli",pron:"[kvɛtʃən]",conj:["quetsche","quetschst","quetscht","quetschen","quetscht","quetschen"],examples:[["Ich quetsche die Orange.","Portakalı sıkıyorum."],["Quetschst du das?","Bunu sıkıyor musun?"]]},
+    {de:"pressen",tr:"basmak/ sıkmak",type:"Düzenli",pron:"[pʁɛsən]",conj:["presse","presst","presst","pressen","presst","pressen"],examples:[["Ich presse die Knöpfe.","Düğmelere basıyorum."],["Presst du das?","Buna basıyor musun?"]]},
+    {de:"formen",tr:"şekillendirmek",type:"Düzenli",pron:"[fɔmən]",conj:["forme","formst","formt","formen","formt","formen"],examples:[["Ich forme den Ton.","Kili şekillendiriyorum."],["Formst du das?","Bunu şekillendiriyor musun?"]]},
+    {de:"gestalten",tr:"tasarlamak",type:"Düzenli",pron:"[gəʃtaltən]",conj:["gestalte","gestaltest","gestaltet","gestalten","gestaltet","gestalten"],examples:[["Ich gestalte das Zimmer.","Odayı tasarlıyorum."],["Gestaltest du das?","Bunu tasarlıyor musun?"]]},
+    {de:"bauen",tr:"inşa etmek",type:"Düzenli",pron:"[bauən]",conj:["baue","baust","baut","bauen","baut","bauen"],examples:[["Ich baue ein Haus.","Ev inşa ediyorum."],["Baust du das?","Bunu inşa ediyor musun?"]]},
+    {de:"reparieren",tr:"tamir etmek",type:"Düzenli",pron:"[ʁepaʁi:ʁən]",conj:["repariere","reparierst","repariert","reparieren","repariert","reparieren"],examples:[["Ich repariere das Auto.","Arabayı tamir ediyorum."],["Reparierst du das?","Bunu tamir ediyor musun?"]]},
+    {de:"verbessern",tr:"iyileştirmek",type:"Düzenli",pron:"[fɛabɛsən]",conj:["verbessere","verbesserst","verbessert","verbessern","verbessert","verbessern"],examples:[["Ich verbessere mich.","Kendimi iyileştiriyorum."],["Verbesserst du das?","Bunu iyileştiriyor musun?"]]},
+    {de:"verschlechtern",tr:"kötüleştirmek",type:"Düzenli",pron:"[fɛaʃlɛçtən]",conj:["verschlechtere","verschlechterst","verschlechtert","verschlechtern","verschlechtert","verschlechtern"],examples:[["Ich verschlechtere das.","Bunu kötüleştiriyorum."],["Verschlechterst du das?","Bunu kötüleştiriyor musun?"]]},
+    {de:"ändern",tr:"değiştirmek",type:"Düzenli",pron:"[ɛndən]",conj:["ändere","änderst","ändert","ändern","ändert","ändern"],examples:[["Ich ändere das.","Bunu değiştiriyorum."],["Änderst du das?","Bunu değiştiriyor musun?"]]},
+    {de:"wechseln",tr:"değiştirmek",type:"Düzenli",pron:"[vɛksəln]",conj:["wechsle","wechselst","wechselt","wechseln","wechselt","wechseln"],examples:[["Ich wechsle das.","Bunu değiştiriyorum."],["Wechselst du das?","Bunu değiştiriyor musun?"]]},
+    {de:"erneuern",tr:"yenilemek",type:"Düzenli",pron:"[ɛanɔyən]",conj:["erneuere","erneuerst","erneuert","erneuern","erneuert","erneuern"],examples:[["Ich erneuere das.","Bunu yeniliyorum."],["Erneuerst du das?","Bunu yeniliyor musun?"]]},
+    {de:"erfinden",tr:"icat etmek",type:"Düzensiz",pron:"[ɛafindən]",conj:["erfinde","erfindest","erfindet","erfinden","erfindet","erfinden"],examples:[["Ich erfinde etwas.","Bir şey icat ediyorum."],["Erfindest du das?","Bunu icat ediyor musun?"]]},
+    {de:"entdecken",tr:"keşfetmek",type:"Düzenli",pron:"[ɛntdɛkən]",conj:["entdecke","entdeckst","entdeckt","entdecken","entdeckt","entdecken"],examples:[["Ich entdecke das.","Bunu keşfediyorum."],["Entdeckst du das?","Bunu keşfediyor musun?"]]},
+    {de:"erleben",tr:"yaşamak/deneyimlemek",type:"Düzenli",pron:"[ɛale:bən]",conj:["erlebe","erlebst","erlebt","erleben","erlebt","erleben"],examples:[["Ich erlebe das.","Bunu yaşıyorum."],["Erlebst du das?","Bunu yaşıyor musun?"]]},
+    {de:"erleiden",tr:"acı çekmek",type:"Düzensiz",pron:"[ɛalaidən]",conj:["erleide","erleidest","erleidet","erleiden","erleidet","erleiden"],examples:[["Ich erleide Schmerzen.","Acı çekiyorum."],["Erleidest du das?","Bunu çekiyor musun?"]]},
+    {de:"ertragen",tr:"dayanmak/kaldırmak",type:"Düzensiz",pron:"[ɛatʁa:gən]",conj:["ertrage","erträgst","erträgt","ertragen","ertragt","ertragen"],examples:[["Ich ertrage das.","Buna dayanıyorum."],["Erträgst du das?","Buna dayanıyor musun?"]]},
+    {de:"verhindern",tr:"önlemek/engel olmak",type:"Düzenli",pron:"[fɛahɪndən]",conj:["verhindere","verhinderst","verhindert","verhindern","verhindert","verhindern"],examples:[["Ich verhindere das.","Bunu önlüyorum."],["Verhinderst du das?","Bunu önlüyor musun?"]]},
+    {de:"ermöglichen",tr:"olanak sağlamak",type:"Düzenli",pron:"[ɛamø:gliçən]",conj:["ermögliche","ermöglichst","ermöglicht","ermöglichen","ermöglicht","ermöglichen"],examples:[["Ich ermögliche das.","Bunu olanak sağlıyorum."],["Ermöglichst du das?","Bunu sağlıyor musun?"]]},
+    {de:"erlauben",tr:"izin vermek",type:"Düzenli",pron:"[ɛalaubən]",conj:["erlaube","erlaubst","erlaubt","erlauben","erlaubt","erlauben"],examples:[["Ich erlaube das.","Buna izin veriyorum."],["Erlaubst du das?","Buna izin veriyor musun?"]]},
+    {de:"verbieten",tr:"yasaklamak",type:"Düzenli",pron:"[fɛabi:tən]",conj:["verbiete","verbietest","verbietet","verbieten","verbietet","verbieten"],examples:[["Ich verbiete das.","Bunu yasaklıyorum."],["Verbietest du das?","Bunu yasaklıyor musun?"]]},
+    {de:"entwickeln",tr:"geliştirmek",type:"Düzenli",pron:"[ɛntvɪkəln]",conj:["entwickle","entwickelst","entwickelt","entwickeln","entwickelt","entwickeln"],examples:[["Ich entwickle das.","Bunu geliştiriyorum."],["Entwickelst du das?","Bunu geliştiriyor musun?"]]},
+    {de:"fortsetzen",tr:"devam etmek/sürdürmek",type:"Düzenli",pron:"[fɔatʁzɛtsən]",conj:["setze fort","setzt fort","setzt fort","setzen fort","setzt fort","setzen fort"],examples:[["Ich setze fort.","Devam ediyorum."],["Setzt du fort?","Devam ediyor musun?"]]},
+    {de:"unterbrechen",tr:"kesmek/ara vermek",type:"Düzensiz",pron:"[ʊntabʁɛçən]",conj:["unterbreche","unterbrichst","unterbricht","unterbrechen","unterbrecht","unterbrechen"],examples:[["Ich unterbreche das.","Bunu kesiyorum."],["Unterbrichst du das?","Bunu kesiyor musun?"]]},
+    {de:"abbrechen",tr:"kesmek/sonlandırmak",type:"Düzensiz",pron:"[apbʁɛçən]",conj:["breche ab","brichst ab","bricht ab","brechen ab","brecht ab","brechen ab"],examples:[["Ich breche ab.","Kesiyorum."],["Brichst du ab?","Kesiyor musun?"]]},
+    {de:"beenden",tr:"bitirmek",type:"Düzenli",pron:"[bəɛndən]",conj:["beende","beendest","beendet","beenden","beendet","beenden"],examples:[["Ich beende das.","Bunu bitiriyorum."],["Beendest du das?","Bunu bitiriyor musun?"]]},
+    {de:"aufhören",tr:"durmak/bırakmak",type:"Düzenli",pron:"[aufhø:ʁən]",conj:["höre auf","hörst auf","hört auf","hören auf","hört auf","hören auf"],examples:[["Ich höre auf.","Bırakıyorum."],["Hörst du auf?","Bırakıyor musun?"]]},
+    {de:"beginnen",tr:"başlamak",type:"Düzensiz",pron:"[begɪnən]",conj:["beginne","beginnst","beginnt","beginnen","beginnt","beginnen"],examples:[["Ich beginne das.","Bunu başlatıyorum."],["Beginnst du das?","Bunu başlatıyor musun?"]]},
+    {de:"starten",tr:"başlatmak",type:"Düzenli",pron:"[ʃtaatən]",conj:["starte","startest","startet","starten","startet","starten"],examples:[["Ich starte das.","Bunu başlatıyorum."],["Startest du das?","Bunu başlatıyor musun?"]]},
+    {de:"gründen",tr:"kurmak",type:"Düzenli",pron:"[gʁʏndən]",conj:["gründe","gründest","gründet","gründen","gründet","gründen"],examples:[["Ich gründe eine Firma.","Şirket kuruyorum."],["Gründest du das?","Bunu kuruyor musun?"]]},
+    {de:"eröffnen",tr:"açmak (resmi)",type:"Düzenli",pron:"[ɛaœfnən]",conj:["eröffne","eröffnest","eröffnet","eröffnen","eröffnet","eröffnen"],examples:[["Ich eröffne das Geschäft.","İş yeri açıyorum."],["Eröffnest du das?","Bunu açıyor musun?"]]},
+    {de:"schließen",tr:"kapatmak",type:"Düzensiz",pron:"[ʃli:sən]",conj:["schließe","schließt","schließt","schließen","schließt","schließen"],examples:[["Ich schließe das Geschäft.","İş yerini kapatıyorum."],["Schließt du das?","Bunu kapatıyor musun?"]]},
+    {de:"erweitern",tr:"genişletmek",type:"Düzenli",pron:"[ɛavaɪtən]",conj:["erweitere","erweiterst","erweitert","erweitern","erweitert","erweitern"],examples:[["Ich erweitere das.","Bunu genişletiyorum."],["Erweiterst du das?","Bunu genişletiyor musun?"]]},
+    {de:"verkleinern",tr:"küçültmek",type:"Düzenli",pron:"[fɛaklainən]",conj:["verkleinere","verkleinerst","verkleinert","verkleinern","verkleinert","verkleinern"],examples:[["Ich verkleinere das.","Bunu küçültüyorum."],["Verkleinerst du das?","Bunu küçültüyor musun?"]]},
+    {de:"vergrößern",tr:"büyütmek",type:"Düzenli",pron:"[fɛagʁø:sən]",conj:["vergrößere","vergrößerst","vergrößert","vergrößern","vergrößert","vergrößern"],examples:[["Ich vergrößere das.","Bunu büyütüyorum."],["Vergrößerst du das?","Bunu büyütüyor musun?"]]},
+    {de:"reduzieren",tr:"indirmek/azaltmak",type:"Düzenli",pron:"[ʁedutsi:ʁən]",conj:["reduziere","reduzierst","reduziert","reduzieren","reduziert","reduzieren"],examples:[["Ich reduziere das.","Bunu azaltıyorum."],["Reduzierst du das?","Bunu azaltıyor musun?"]]},
+    {de:"erhöhen",tr:"artırmak/yükseltmek",type:"Düzenli",pron:"[ɛahø:ən]",conj:["erhöhe","erhöhst","erhöht","erhöhen","erhöht","erhöhen"],examples:[["Ich erhöhe das.","Bunu artırıyorum."],["Erhöhst du das?","Bunu artırıyor musun?"]]},
+    {de:"senken",tr:"indirmek/alçaltmak",type:"Düzenli",pron:"[zɛŋkən]",conj:["senke","senkst","senkt","senken","senkt","senken"],examples:[["Ich senke das.","Bunu indiriyorum."],["Senkst du das?","Bunu indiriyor musun?"]]},
+    {de:"steigern",tr:"artırmak",type:"Düzenli",pron:"[ʃtaigən]",conj:["steigere","steigerst","steigert","steigern","steigert","steigern"],examples:[["Ich steigere das.","Bunu artırıyorum."],["Steigerst du das?","Bunu artırıyor musun?"]]},
+    {de:"sinken",tr:"düşmek (fiyat)",type:"Düzensiz",pron:"[zɪŋkən]",conj:["sinke","sinkst","sinkt","sinken","sinkt","sinken"],examples:[["Der Preis sinkt.","Fiyat düşüyor."],["Sinkt das?","Bu düşüyor mu?"]]},
+    {de:"steigen",tr:"çıkmak/yükselmek",type:"Düzensiz",pron:"[ʃtaigən]",conj:["steige","steigst","steigt","steigen","steigt","steigen"],examples:[["Der Preis steigt.","Fiyat yükseliyor."],["Steigt das?","Bu yükseliyor mu?"]]},
+    {de:"fallen",tr:"düşmek",type:"Düzensiz",pron:"[falən]",conj:["falle","fällst","fällt","fallen","fallt","fallen"],examples:[["Ich falle hin.","Düşüyorum."],["Fällst du?","Düşüyor musun?"]]},
+    {de:"stürzen",tr:"düşmek/yıkmak",type:"Düzenli",pron:"[ʃtʏʁtsən]",conj:["stürze","stürzt","stürzt","stürzen","stürzt","stürzen"],examples:[["Ich stürze hin.","Yere düşüyorum."],["Stürzt du?","Düşüyor musun?"]]},
+    {de:"hängen",tr:"asmak",type:"Düzensiz",pron:"[hɛŋən]",conj:["hänge","hängst","hängt","hängen","hängt","hängen"],examples:[["Ich hänge das Bild auf.","Resmi asıyorum."],["Hängst du das?","Bunu asıyor musun?"]]},
+    {de:"hängen",tr:"sarkmak",type:"Düzensiz",pron:"[haŋən]",conj:["hänge","hängst","hängt","hängen","hängt","hängen"],examples:[["Das Bild hängt.","Resim sarkıyor."],["Hängt das?","Bu sarkıyor mu?"]]},
+    {de:"liefern",tr:"teslim etmek",type:"Düzenli",pron:"[li:fən]",conj:["liefere","lieferst","liefert","liefern","liefert","liefern"],examples:[["Ich liefere das.","Bunu teslim ediyorum."],["Lieferst du das?","Bunu teslim ediyor musun?"]]},
+    {de:"senden",tr:"göndermek/yollamak",type:"Düzenli",pron:"[zɛndən]",conj:["sende","sendest","sendet","senden","sendet","senden"],examples:[["Ich sende das.","Bunu gönderiyorum."],["Sendest du das?","Bunu gönderiyor musun?"]]},
+    {de:"transportieren",tr:"taşımak",type:"Düzenli",pron:"[tʁanspɔati:ʁən]",conj:["transportiere","transportierst","transportiert","transportieren","transportiert","transportieren"],examples:[["Ich transportiere das.","Bunu taşıyorum."],["Transportierst du das?","Bunu taşıyor musun?"]]},
+    {de:"bewahren",tr:"korumak/saklamak",type:"Düzenli",pron:"[bəva:ʁən]",conj:["bewahre","bewahrst","bewahrt","bewahren","bewahrt","bewahren"],examples:[["Ich bewahre das auf.","Bunu saklıyorum."],["Bewahrst du das?","Bunu saklıyor musun?"]]},
+    {de:"aufbewahren",tr:"saklamak",type:"Düzenli",pron:"[aufbəva:ʁən]",conj:["bewahre auf","bewahrst auf","bewahrt auf","bewahren auf","bewahrt auf","bewahren auf"],examples:[["Ich bewahre das auf.","Bunu saklıyorum."],["Bewahrst du das auf?","Bunu saklıyor musun?"]]},
+    {de:"verstecken",tr:"saklamak/gizlemek",type:"Düzenli",pron:"[fɛaʃtɛkən]",conj:["verstecke","versteckst","versteckt","verstecken","versteckt","verstecken"],examples:[["Ich verstecke das.","Bunu saklıyorum."],["Versteckst du das?","Bunu saklıyor musun?"]]},
+    {de:"zeigen",tr:"göstermek",type:"Düzenli",pron:"[tsaigən]",conj:["zeige","zeigst","zeigt","zeigen","zeigt","zeigen"],examples:[["Ich zeige das.","Bunu gösteriyorum."],["Zeigst du das?","Bunu gösteriyor musun?"]]},
+    {de:"demonstrieren",tr:"göstermek/demonstrasyon yapmak",type:"Düzenli",pron:"[dɛmɔnstʁi:ʁən]",conj:["demonstriere","demonstrerst","demonstrert","demonstrieren","demonstrert","demonstrieren"],examples:[["Ich demonstriere das.","Bunu gösteriyorum."],["Demonstrerst du das?","Bunu gösteriyor musun?"]]},
+        {de:"beweisen",tr:"kanıtlamak",type:"Düzensiz",pron:"[bəvaɪzən]",conj:["beweise","beweist","beweist","beweisen","beweist","beweisen"],examples:[["Ich beweise es.","Bunu kanıtlıyorum."],["Beweist du das?","Bunu kanıtlıyor musun?"]]},
+    {de:"überzeugen",tr:"ikna etmek",type:"Düzenli",pron:"[y:bɐtsɔɪgən]",conj:["überzeuge","überzeugst","überzeugt","überzeugen","überzeugt","überzeugen"],examples:[["Ich überzeuge dich.","Seni ikna ediyorum."],["Überzeugst du ihn?","Onu ikna ediyor musun?"]]},
+    {de:"überreden",tr:"kandırmak/ikna etmek",type:"Düzenli",pron:"[y:bɐʁe:dən]",conj:["überrede","überredest","überredet","überreden","überredet","überreden"],examples:[["Ich überrede sie.","Onu ikna ediyorum (kandırarak)."],["Überredest du mich?","Beni ikna ediyor musun?"]]},
+    {de:"erklären",tr:"açıklamak",type:"Düzenli",pron:"[ɛɐklɛ:ʁən]",conj:["erkläre","erklärst","erklärt","erklären","erklärt","erklären"],examples:[["Ich erkläre dir das.","Sana bunu açıklıyorum."],["Erklärst du mir?","Bana açıklıyor musun?"]]},
+    {de:"beschreiben",tr:"tarif etmek",type:"Düzensiz",pron:"[bəʃʁaɪbən]",conj:["beschreibe","beschreibst","beschreibt","beschreiben","beschreibt","beschreiben"],examples:[["Ich beschreibe das Bild.","Resmi tarif ediyorum."],["Beschreibst du es?","Onu tarif ediyor musun?"]]},
+    {de:"verstehen",tr:"anlamak",type:"Düzensiz",pron:"[fɛɐʃte:ən]",conj:["verstehe","verstehst","versteht","verstehen","versteht","verstehen"],examples:[["Ich verstehe dich.","Seni anlıyorum."],["Verstehst du mich?","Beni anlıyor musun?"]]},
+    {de:"vergessen",tr:"unutmak",type:"Düzensiz",pron:"[fɛɐɡɛsən]",conj:["vergesse","vergisst","vergisst","vergessen","vergesst","vergessen"],examples:[["Ich vergesse es nie.","Bunu asla unutmam."],["Vergisst du oft?","Sık unutur musun?"]]},
+    {de:"erinnern",tr:"hatırlatmak",type:"Düzenli",pron:"[ɛɐʁɪnɐn]",conj:["erinnere","erinnerst","erinnert","erinnern","erinnert","erinnern"],examples:[["Ich erinnere dich.","Sana hatırlatıyorum."],["Erinnerst du mich?","Bana hatırlatıyor musun?"]]},
+    {de:"merken",tr:"fark etmek/hatırlamak",type:"Düzenli",pron:"[mɛʁkən]",conj:["merke","merkst","merkt","merken","merkt","merken"],examples:[["Ich merke es mir.","Bunu aklımda tutuyorum."],["Merkst du das?","Bunu fark ediyor musun?"]]},
+    {de:"lernen",tr:"öğrenmek",type:"Düzenli",pron:"[lɛʁnən]",conj:["lerne","lernst","lernt","lernen","lernt","lernen"],examples:[["Ich lerne Deutsch.","Almanca öğreniyorum."],["Lernst du schnell?","Hızlı öğreniyor musun?"]]},
+    {de:"studieren",tr:"çalışmak/üniversitede okumak",type:"Düzenli",pron:"[ʃtuˈdi:ʁən]",conj:["studiere","studierst","studiert","studieren","studiert","studieren"],examples:[["Ich studiere Medizin.","Tıp okuyorum."],["Studiert ihr zusammen?","Birlikte mi okuyorsunuz?"]]},
+    {de:"üben",tr:"çalışmak/egzersiz yapmak",type:"Düzenli",pron:"[y:bən]",conj:["übe","übst","übt","üben","übt","üben"],examples:[["Ich übe jeden Tag.","Her gün çalışıyorum."],["Übst du Klavier?","Piyano çalışıyor musun?"]]},
+    {de:"wiederholen",tr:"tekrar etmek",type:"Düzenli",pron:"[vi:dɐho:lən]",conj:["wiederhole","wiederholst","wiederholt","wiederholen","wiederholt","wiederholen"],examples:[["Ich wiederhole die Wörter.","Kelimeleri tekrar ediyorum."],["Wiederholst du das?","Bunu tekrarlıyor musun?"]]},
+    {de:"fragen",tr:"sormak",type:"Düzenli",pron:"[fʁa:gən]",conj:["frage","fragst","fragt","fragen","fragt","fragen"],examples:[["Ich frage dich.","Sana soruyorum."],["Fragst du ihn?","Ona soruyor musun?"]]},
+    {de:"antworten",tr:"cevap vermek",type:"Düzenli",pron:"[antvɔʁtən]",conj:["antworte","antwortest","antwortet","antworten","antwortet","antworten"],examples:[["Ich antworte dir.","Sana cevap veriyorum."],["Antwortest du mir?","Bana cevap veriyor musun?"]]},
+    {de:"diskutieren",tr:"tartışmak",type:"Düzenli",pron:"[dɪskuˈti:ʁən]",conj:["diskutiere","diskutierst","diskutiert","diskutieren","diskutiert","diskutieren"],examples:[["Wir diskutieren das Problem.","Sorunu tartışıyoruz."],["Diskutierst du gern?","Tartışmayı sever misin?"]]},
+    {de:"sprechen",tr:"konuşmak",type:"Düzensiz",pron:"[ʃpʁɛçən]",conj:["spreche","sprichst","spricht","sprechen","sprecht","sprechen"],examples:[["Ich spreche Deutsch.","Almanca konuşuyorum."],["Sprichst du Türkisch?","Türkçe konuşuyor musun?"]]},
+    {de:"reden",tr:"konuşmak (sohbet)",type:"Düzenli",pron:"[ʁe:dən]",conj:["rede","redest","redet","reden","redet","reden"],examples:[["Wir reden viel.","Çok konuşuyoruz."],["Redest du mit mir?","Benimle konuşuyor musun?"]]},
+    {de:"erzählen",tr:"anlatmak",type:"Düzenli",pron:"[ɛɐtsɛ:lən]",conj:["erzähle","erzählst","erzählt","erzählen","erzählt","erzählen"],examples:[["Ich erzähle eine Geschichte.","Bir hikâye anlatıyorum."],["Erzählst du mir?","Bana anlatır mısın?"]]},
+    {de:"schweigen",tr:"susmak",type:"Düzensiz",pron:"[ʃvaɪgən]",conj:["schweige","schweigst","schweigt","schweigen","schweigt","schweigen"],examples:[["Ich schweige.","Susuyorum."],["Schweigst du?","Susuyor musun?"]]},
+    {de:"rufen",tr:"bağırmak/çağırmak",type:"Düzensiz",pron:"[ʁu:fən]",conj:["rufe","rufst","ruft","rufen","ruft","rufen"],examples:[["Ich rufe dich.","Seni çağırıyorum."],["Rufst du mich an?","Beni arıyor musun?"]]},
+    {de:"schreien",tr:"bağırmak",type:"Düzensiz",pron:"[ʃʁaɪən]",conj:["schreie","schreist","schreit","schreien","schreit","schreien"],examples:[["Das Kind schreit.","Çocuk bağırıyor."],["Schreist du?","Bağırıyor musun?"]]},
+    {de:"flüstern",tr:"fısıldamak",type:"Düzenli",pron:"[flʏstɐn]",conj:["flüstere","flüsterst","flüstert","flüstern","flüstert","flüstern"],examples:[["Ich flüstere dir etwas.","Sana bir şey fısıldıyorum."],["Flüsterst du?","Fısıldıyor musun?"]]},
+    {de:"lachen",tr:"gülmek",type:"Düzenli",pron:"[laxən]",conj:["lache","lachst","lacht","lachen","lacht","lachen"],examples:[["Ich lache laut.","Yüksek sesle gülüyorum."],["Lachst du über mich?","Benimle mi dalga geçiyorsun?"]]},
+    {de:"weinen",tr:"ağlamak",type:"Düzenli",pron:"[vaɪnən]",conj:["weine","weinst","weint","weinen","weint","weinen"],examples:[["Das Baby weint.","Bebek ağlıyor."],["Weinst du?","Ağlıyor musun?"]]},
+    {de:"lächeln",tr:"gülümsemek",type:"Düzenli",pron:"[lɛçəln]",conj:["lächle","lächelst","lächelt","lächeln","lächelt","lächeln"],examples:[["Ich lächle dich an.","Sana gülümsüyorum."],["Lächelst du?","Gülümsüyor musun?"]]},
+    {de:"sich freuen",tr:"sevinmek",type:"Düzenli (reflexiv)",pron:"[zɪç fʁɔɪən]",conj:["freue mich","freust dich","freut sich","freuen uns","freut euch","freuen sich"],examples:[["Ich freue mich.","Seviniyorum."],["Freust du dich?","Seviniyor musun?"]]},
+    {de:"sich ärgern",tr:"kızmak",type:"Düzenli (reflexiv)",pron:"[zɪç ɛʁɡɐn]",conj:["ärgere mich","ärgerst dich","ärgert sich","ärgern uns","ärgert euch","ärgern sich"],examples:[["Ich ärgere mich.","Kızıyorum."],["Ärgerst du dich?","Kızıyor musun?"]]},
+    {de:"sich entschuldigen",tr:"özür dilemek",type:"Düzenli (reflexiv)",pron:"[zɪç ɛntʃʊldɪgən]",conj:["entschuldige mich","entschuldigst dich","entschuldigt sich","entschuldigen uns","entschuldigt euch","entschuldigen sich"],examples:[["Ich entschuldige mich.","Özür diliyorum."],["Entschuldigst du dich?","Özür diliyor musun?"]]},
+    {de:"sich bedanken",tr:"teşekkür etmek",type:"Düzenli (reflexiv)",pron:"[zɪç bədaŋkən]",conj:["bedanke mich","bedankst dich","bedankt sich","bedanken uns","bedankt euch","bedanken sich"],examples:[["Ich bedanke mich.","Teşekkür ediyorum."],["Bedankst du dich?","Teşekkür ediyor musun?"]]},
+    {de:"sich interessieren",tr:"ilgilenmek",type:"Düzenli (reflexiv)",pron:"[zɪç ɪntəʁesi:ʁən]",conj:["interessiere mich","interessierst dich","interessiert sich","interessieren uns","interessiert euch","interessieren sich"],examples:[["Ich interessiere mich für Sport.","Sporla ilgileniyorum."],["Interessierst du dich dafür?","Bununla ilgileniyor musun?"]]},
+    {de:"sich treffen",tr:"buluşmak",type:"Düzensiz (reflexiv)",pron:"[zɪç tʁɛfən]",conj:["treffe mich","triffst dich","trifft sich","treffen uns","trefft euch","treffen sich"],examples:[["Wir treffen uns.","Buluşuyoruz."],["Triffst du dich mit ihm?","Onunla buluşuyor musun?"]]},
+        // --- Bir sonraki 60 fiil (sağlık, spor, günlük rutin, ev işleri, duygular temalı ağırlıklı) ---
+
+    {de:"schwimmen",tr:"yüzmek",type:"Düzensiz",pron:"[ʃvɪmən]",conj:["schwimme","schwimmst","schwimmt","schwimmen","schwimmt","schwimmen"],examples:[["Ich schwimme im See.","Gölde yüzüyorum."],["Schwimmst du gern?","Yüzmeyi sever misin?"]]},
+    {de:"laufen",tr:"koşmak",type:"Düzensiz",pron:"[laʊfən]",conj:["laufe","läufst","läuft","laufen","lauft","laufen"],examples:[["Ich laufe jeden Morgen.","Her sabah koşuyorum."],["Läufst du Marathon?","Maraton koşuyor musun?"]]},
+    {de:"radfahren",tr:"bisiklet sürmek",type:"Düzensiz",pron:"[ʁa:tfɑ:ʁən]",conj:["fahre Rad","fährst Rad","fährt Rad","fahren Rad","fahrt Rad","fahren Rad"],examples:[["Ich fahre Rad zur Arbeit.","İşe bisikletle gidiyorum."],["Fährst du Rad?","Bisiklet sürüyor musun?"]]},
+    {de:"turnen",tr:"jimnastik yapmak",type:"Düzenli",pron:"[tʊʁnən]",conj:["turne","turnst","turnt","turnen","turnt","turnen"],examples:[["Die Kinder turnen.","Çocuklar jimnastik yapıyor."],["Turnst du im Verein?","Kulüpte jimnastik yapıyor musun?"]]},
+    {de:"trainieren",tr:"antrenman yapmak",type:"Düzenli",pron:"[tʁɛni:ʁən]",conj:["trainiere","trainierst","trainiert","trainieren","trainiert","trainieren"],examples:[["Ich trainiere im Fitnessstudio.","Spor salonunda antrenman yapıyorum."],["Trainierst du Kraft?","Kuvvet antrenmanı yapıyor musun?"]]},
+    {de:"joggen",tr:"jogging yapmak / hafif koşmak",type:"Düzenli",pron:"[dʒɔɡən]",conj:["jogge","joggst","joggt","joggen","joggt","joggen"],examples:[["Ich jogge im Park.","Parkta jogging yapıyorum."],["Joggst du regelmäßig?","Düzenli jogging yapıyor musun?"]]},
+    {de:"tanzen",tr:"dans etmek",type:"Düzenli",pron:"[tant͡sn̩]",conj:["tanze","tanzt","tanzt","tanzen","tanzt","tanzen"],examples:[["Wir tanzen Salsa.","Salsa dans ediyoruz."],["Tanzt ihr zusammen?","Birlikte dans ediyor musunuz?"]]},
+    {de:"singen",tr:"şarkı söylemek",type:"Düzensiz",pron:"[zɪŋən]",conj:["singe","singst","singt","singen","singt","singen"],examples:[["Ich singe unter der Dusche.","Duşta şarkı söylüyorum."],["Singst du im Chor?","Koro’da şarkı söylüyor musun?"]]},
+    {de:"spielen",tr:"oynamak (müzik aleti / oyun)",type:"Düzenli",pron:"[ʃpi:lən]",conj:["spiele","spielst","spielt","spielen","spielt","spielen"],examples:[["Ich spiele Fußball.","Futbol oynuyorum."],["Spielst du Klavier?","Piyano çalıyor musun?"]]},
+    {de:"schlafen",tr:"uyumak",type:"Düzensiz",pron:"[ʃla:fən]",conj:["schlafe","schläfst","schläft","schlafen","schlaft","schlafen"],examples:[["Ich schlafe 8 Stunden.","8 saat uyuyorum."],["Schläfst du genug?","Yeterince uyuyor musun?"]]},
+    {de:"aufstehen",tr:"kalkmak (yataktan)",type:"Düzensiz",pron:"[aʊfʃte:ən]",conj:["stehe auf","stehst auf","steht auf","stehen auf","steht auf","stehen auf"],examples:[["Ich stehe um 7 Uhr auf.","Saat 7'de kalkıyorum."],["Stehst du früh auf?","Erken kalkıyor musun?"]]},
+    {de:"frühstücken",tr:"kahvaltı yapmak",type:"Düzenli",pron:"[fʁy:ʃtʏkən]",conj:["frühstücke","frühstückst","frühstückt","frühstücken","frühstückt","frühstücken"],examples:[["Ich frühstücke Brot und Kaffee.","Ekmek ve kahve ile kahvaltı yapıyorum."],["Frühstückst du süß?","Tatlı kahvaltı mı yapıyorsun?"]]},
+    {de:"duschen",tr:"duş almak",type:"Düzenli",pron:"[dʊʃən]",conj:["dusche","duschst","duscht","duschen","duscht","duschen"],examples:[["Ich dusche morgens.","Sabahları duş alıyorum."],["Duschst du kalt?","Soğuk duş mu alıyorsun?"]]},
+    {de:"waschen",tr:"yıkamak",type:"Düzensiz",pron:"[vaʃən]",conj:["wasche","wäschst","wäscht","waschen","wascht","waschen"],examples:[["Ich wasche die Wäsche.","Çamaşır yıkıyorum."],["Wäschst du mit heißem Wasser?","Sıcak suyla mı yıkıyorsun?"]]},
+    {de:"putzen",tr:"temizlemek",type:"Düzenli",pron:"[pʊt͡sn̩]",conj:["putze","putzt","putzt","putzen","putzt","putzen"],examples:[["Ich putze das Bad.","Banyoyu temizliyorum."],["Putzt ihr zusammen?","Birlikte mi temizliyorsunuz?"]]},
+    {de:"kochen",tr:"yemek pişirmek",type:"Düzenli",pron:"[kɔxən]",conj:["koche","kochst","kocht","kochen","kocht","kochen"],examples:[["Ich koche italienisch.","İtalyan yemeği pişiriyorum."],["Kochst du gern?","Yemek yapmayı sever misin?"]]},
+    {de:"backen",tr:"fırınlamak / pasta yapmak",type:"Düzensiz",pron:"[bakən]",conj:["backe","bäckst","bäckt","backen","backt","backen"],examples:[["Ich backe einen Kuchen.","Kek pişiriyorum."],["Bäckst du Brot?","Ekmek mi pişiriyorsun?"]]},
+    {de:"essen",tr:"yemek",type:"Düzensiz",pron:"[ɛsən]",conj:["esse","isst","isst","essen","esst","essen"],examples:[["Ich esse vegetarisch.","Vejetaryen yemek yiyorum."],["Isst du scharf?","Acılı mı yiyorsun?"]]},
+    {de:"trinken",tr:"içmek",type:"Düzensiz",pron:"[tʁɪŋkən]",conj:["trinke","trinkst","trinkt","trinken","trinkt","trinken"],examples:[["Ich trinke viel Wasser.","Çok su içiyorum."],["Trinkst du Kaffee?","Kahve içiyor musun?"]]},
+    {de:"rauchen",tr:"sigara içmek",type:"Düzenli",pron:"[ʁaʊxən]",conj:["rauche","rauchst","raucht","rauchen","raucht","rauchen"],examples:[["Ich rauche nicht mehr.","Artık sigara içmiyorum."],["Rauchst du?","Sigara içiyor musun?"]]},
+    {de:"fühlen (sich)",tr:"hissetmek",type:"Düzenli (reflexiv)",pron:"[zɪç fy:lən]",conj:["fühle mich","fühlst dich","fühlt sich","fühlen uns","fühlt euch","fühlen sich"],examples:[["Ich fühle mich gut.","Kendimi iyi hissediyorum."],["Fühlst du dich müde?","Yorgun hissediyor musun?"]]},
+    {de:"sich freuen",tr:"memnun olmak / sevinmek",type:"Düzenli (reflexiv)",pron:"[zɪç fʁɔɪən]",conj:["freue mich","freust dich","freut sich","freuen uns","freut euch","freuen sich"],examples:[["Ich freue mich auf den Urlaub.","Tatili dört gözle bekliyorum."],["Freust du dich?","Seviniyor musun?"]]},
+    {de:"sich ärgern",tr:"sinirlenmek",type:"Düzenli (reflexiv)",pron:"[zɪç ɛʁɡɐn]",conj:["ärgere mich","ärgerst dich","ärgert sich","ärgern uns","ärgert euch","ärgern sich"],examples:[["Ich ärgere mich über die Verspätung.","Gecikmeye sinirleniyorum."],["Ärgerst du dich oft?","Sık sinirleniyor musun?"]]},
+    {de:"sich langweilen",tr:"sıkılmak",type:"Düzenli (reflexiv)",pron:"[zɪç laŋvaɪlən]",conj:["langeweile mich","langweilst dich","langweilt sich","langweilen uns","langweilt euch","langweilen sich"],examples:[["Ich langweile mich.","Sıkılıyorum."],["Langweilst du dich?","Sıkılıyor musun?"]]},
+    {de:"sich wundern",tr:"şaşırmak",type:"Düzenli (reflexiv)",pron:"[zɪç vʊndɐn]",conj:["wundere mich","wunderst dich","wundert sich","wundern uns","wundert euch","wundern sich"],examples:[["Ich wundere mich darüber.","Buna şaşırıyorum."],["Wunderst du dich?","Şaşırıyor musun?"]]},
+    {de:"weinen",tr:"ağlamak",type:"Düzenli",pron:"[vaɪnən]",conj:["weine","weinst","weint","weinen","weint","weinen"],examples:[["Das Kind weint.","Çocuk ağlıyor."],["Weinst du manchmal?","Bazen ağlıyor musun?"]]},
+    {de:"lachen",tr:"gülmek",type:"Düzenli",pron:"[laxən]",conj:["lache","lachst","lacht","lachen","lacht","lachen"],examples:[["Wir lachen zusammen.","Birlikte gülüyoruz."],["Lachst du über den Witz?","Şakaya gülüyor musun?"]]},
+    {de:"lächeln",tr:"gülümsemek",type:"Düzenli",pron:"[lɛçəln]",conj:["lächle","lächelst","lächelt","lächeln","lächelt","lächeln"],examples:[["Sie lächelt freundlich.","Nazikçe gülümsüyor."],["Lächelst du oft?","Sık gülümsüyor musun?"]]},
+    {de:"schreien",tr:"bağırmak",type:"Düzensiz",pron:"[ʃʁaɪən]",conj:["schreie","schreist","schreit","schreien","schreit","schreien"],examples:[["Das Baby schreit.","Bebek bağırıyor."],["Schreist du im Streit?","Kavgada bağırıyor musun?"]]},
+    {de:"flüstern",tr:"fısıldamak",type:"Düzenli",pron:"[flʏstɐn]",conj:["flüstere","flüsterst","flüstert","flüstern","flüstert","flüstern"],examples:[["Er flüstert mir etwas.","Bana bir şey fısıldıyor."],["Flüsterst du im Kino?","Sinema’da fısıldıyor musun?"]]},
+    {de:"husten",tr:"öksürmek",type:"Düzenli",pron:"[hʊstən]",conj:["huste","hustest","hustet","husten","hustet","husten"],examples:[["Ich huste seit Tagen.","Günlerdir öksürüyorum."],["Hustest du viel?","Çok öksürüyor musun?"]]},
+    {de:"niesen",tr:"hapşırmak",type:"Düzenli",pron:"[ni:zən]",conj:["niese","niest","niest","niesen","niest","niesen"],examples:[["Ich niese wegen Pollen.","Polen yüzünden hapşırıyorum."],["Niest du oft?","Sık hapşırıyor musun?"]]},
+    {de:"krank sein",tr:"hasta olmak",type:"Düzensiz",pron:"[kʁaŋk zaɪn]",conj:["bin krank","bist krank","ist krank","sind krank","seid krank","sind krank"],examples:[["Ich bin krank.","Hastayım."],["Bist du krank?","Hasta mısın?"]]},
+    {de:"schmerzen",tr:"ağrımak",type:"Düzenli",pron:"[ʃmɛʁt͡sn̩]",conj:["schmerze","schmerzt","schmerzt","schmerzen","schmerzt","schmerzen"],examples:[["Mein Kopf schmerzt.","Başım ağrıyor."],["Schmerzt dein Rücken?","Sırtın ağrıyor mu?"]]},
+    {de:"fiebern",tr:"ateşi olmak",type:"Düzenli",pron:"[fi:bɐn]",conj:["fiebere","fieberst","fiebert","fiebern","fiebert","fiebern"],examples:[["Das Kind fiebert.","Çocuğun ateşi var."],["Fieberst du?","Ateşin mi var?"]]},
+    
+        // --- Yeni 60 fiil (iş, eğitim, teknoloji, iletişim, çevre ağırlıklı) ---
+
+    {de:"bewerben (sich)",tr:"işe başvurmak",type:"Düzensiz (reflexiv)",pron:"[zɪç bəˈvɛʁbən]",conj:["bewirb mich","bewirbst dich","bewirbt sich","bewerben uns","bewerbt euch","bewerben sich"],examples:[["Ich bewerbe mich um eine Stelle.","Bir pozisyona başvuruyorum."],["Bewirbst du dich online?","Online mı başvuruyorsun?"]]},
+    {de:"vorstellen",tr:"tanıştırmak / sunmak",type:"Düzenli",pron:"[foːɐ̯ˈʃtɛlən]",conj:["vorstelle","vorstellst","vorstellt","vorstellen","vorstellt","vorstellen"],examples:[["Ich stelle dir meinen Freund vor.","Sana arkadaşımı tanıtıyorum."],["Vorstellst du das Projekt?","Projeyi sunuyor musun?"]]},
+    {de:"leiten",tr:"yönetmek / yönetmek",type:"Düzenli",pron:"[ˈlaɪtən]",conj:["leite","leitest","leitet","leiten","leitet","leiten"],examples:[["Sie leitet die Abteilung.","Departmanı yönetiyor."],["Leitest du das Meeting?","Toplantıyı yönetiyor musun?"]]},
+    {de:"entscheiden",tr:"karar vermek",type:"Düzensiz",pron:"[ɛntˈʃaɪdən]",conj:["entscheide","entscheidest","entscheidet","entscheiden","entscheidet","entscheiden"],examples:[["Ich entscheide mich für Option A.","A seçeneğini seçiyorum."],["Entscheidest du schnell?","Hızlı karar veriyor musun?"]]},
+    {de:"verhandeln",tr:"pazarlık yapmak / müzakere etmek",type:"Düzenli",pron:"[fɛɐ̯ˈhandlən]",conj:["verhandle","verhandelst","verhandelt","verhandeln","verhandelt","verhandeln"],examples:[["Wir verhandeln über den Preis.","Fiyat üzerinde pazarlık yapıyoruz."],["Verhandelst du hart?","Sert pazarlık yapıyor musun?"]]},
+    {de:"kündigen",tr:"istifa etmek / feshetmek",type:"Düzenli",pron:"[ˈkʏndɪgən]",conj:["kündige","kündigst","kündigt","kündigen","kündigt","kündigen"],examples:[["Ich kündige meinen Job.","İşten ayrılıyorum."],["Kündigst du den Vertrag?","Sözleşmeyi feshediyor musun?"]]},
+    {de:"unterrichten",tr:"ders vermek / öğretmek",type:"Düzenli",pron:"[ʊntɐˈʁɪçtən]",conj:["unterrichte","unterrichtest","unterrichtet","unterrichten","unterrichtet","unterrichten"],examples:[["Er unterrichtet Mathematik.","Matematik dersi veriyor."],["Unterrichtest du Kinder?","Çocuklara mı ders veriyorsun?"]]},
+    {de:"lernen",tr:"öğrenmek / ders çalışmak",type:"Düzenli",pron:"[ˈlɛʁnən]",conj:["lerne","lernst","lernt","lernen","lernt","lernen"],examples:[["Ich lerne für die Prüfung.","Sınav için çalışıyorum."],["Lernst du jeden Tag?","Her gün çalışıyor musun?"]]},
+    {de:"wiederholen",tr:"tekrar etmek",type:"Düzenli",pron:"[viːdɐˈhoːlən]",conj:["wiederhole","wiederholst","wiederholt","wiederholen","wiederholt","wiederholen"],examples:[["Ich wiederhole die Vokabeln.","Kelimeleri tekrar ediyorum."],["Wiederholst du die Lektion?","Dersi tekrarlıyor musun?"]]},
+    {de:"abschreiben",tr:"kopyalamak / yazmak",type:"Düzensiz",pron:"[ˈapʃʁaɪbən]",conj:["schreibe ab","schreibst ab","schreibt ab","schreiben ab","schreibt ab","schreiben ab"],examples:[["Ich schreibe die Sätze ab.","Cümleleri kopyalıyorum."],["Schreibst du von der Tafel ab?","Tahtadan mı kopyalıyorsun?"]]},
+    {de:"programmieren",tr:"programlamak",type:"Düzenli",pron:"[pʁoɡʁaˈmiːʁən]",conj:["programmiere","programmierst","programmiert","programmieren","programmiert","programmieren"],examples:[["Ich programmiere eine App.","Bir uygulama programlıyorum."],["Programmierst du in Python?","Python’da mı programlıyorsun?"]]},
+    {de:"herunterladen",tr:"indirmek",type:"Düzenli",pron:"[hɛʁʊntɐˈlaːdən]",conj:["lade herunter","lädst herunter","lädt herunter","laden herunter","ladet herunter","laden herunter"],examples:[["Ich lade die Datei herunter.","Dosyayı indiriyorum."],["Lädst du Musik herunter?","Müzik mi indiriyorsun?"]]},
+    {de:"hochladen",tr:"yüklemek (upload)",type:"Düzenli",pron:"[hoːxˈlaːdən]",conj:["lade hoch","lädst hoch","lädt hoch","laden hoch","ladet hoch","laden hoch"],examples:[["Ich lade Fotos hoch.","Fotoğrafları yüklüyorum."],["Lädst du ein Video hoch?","Video mu yüklüyorsun?"]]},
+    {de:"surfen",tr:"internette gezinmek",type:"Düzenli",pron:"[ˈzʊʁfən]",conj:["surfe","surfst","surft","surfen","surft","surfen"],examples:[["Ich surfe im Internet.","İnternette geziniyorum."],["Surfst du viel?","Çok mu geziniyorsun?"]]},
+    {de:"chatten",tr:"sohbet etmek (chat)",type:"Düzenli",pron:"[ˈtʃatən]",conj:["chatte","chattest","chattet","chatten","chattet","chatten"],examples:[["Wir chatten jeden Abend.","Her akşam chat yapıyoruz."],["Chattest du mit Freunden?","Arkadaşlarınla mı chat yapıyorsun?"]]},
+    {de:"mailen",tr:"e-posta göndermek",type:"Düzenli",pron:"[ˈmeɪlən]",conj:["maile","mailst","mailt","mailen","mailt","mailen"],examples:[["Ich maile dir die Datei.","Dosyayı sana e-posta ile gönderiyorum."],["Mailst du oft?","Sık e-posta atıyor musun?"]]},
+    {de:"anrufen",tr:"aramak (telefon)",type:"Düzenli",pron:"[ˈanʁuːfən]",conj:["rufe an","rufst an","ruft an","rufen an","ruft an","rufen an"],examples:[["Ich rufe dich später an.","Seni sonra ararım."],["Rufst du mich zurück?","Beni geri arar mısın?"]]},
+    {de:"schreiben",tr:"yazmak (mesaj, e-posta)",type:"Düzensiz",pron:"[ˈʃʁaɪbən]",conj:["schreibe","schreibst","schreibt","schreiben","schreibt","schreiben"],examples:[["Ich schreibe eine Nachricht.","Bir mesaj yazıyorum."],["Schreibst du mir?","Bana yazıyor musun?"]]},
+    {de:"recyceln",tr:"geri dönüştürmek",type:"Düzenli",pron:"[ʁɛsaɪ̯ˈkl̩n]",conj:["recycle","recycelst","recycelt","recyceln","recycelt","recyceln"],examples:[["Ich recycel Plastik.","Plastiği geri dönüştürüyorum."],["Recycelst du zu Hause?","Evde geri dönüşüm yapıyor musun?"]]},
+    {de:"sparen",tr:"enerji tasarrufu yapmak",type:"Düzenli",pron:"[ˈʃpaːʁən]",conj:["spare","sparst","spart","sparen","spart","sparen"],examples:[["Wir sparen Strom.","Elektrik tasarrufu yapıyoruz."],["Sparst du Wasser?","Su tasarrufu yapıyor musun?"]]},
+    {de:"pflanzen",tr:"bitki dikmek",type:"Düzenli",pron:"[ˈpflant͡sn̩]",conj:["pflanze","pflanzt","pflanzt","pflanzen","pflanzt","pflanzen"],examples:[["Ich pflanze Blumen.","Çiçek dikiyorum."],["Pflanzt ihr Gemüse?","Sebze mi ekiyorsunuz?"]]},
+    {de:"schützen",tr:"korumak (çevre)",type:"Düzenli",pron:"[ˈʃʏt͡sn̩]",conj:["schütze","schützt","schützt","schützen","schützt","schützen"],examples:[["Wir schützen die Umwelt.","Çevreyi koruyoruz."],["Schützt du die Natur?","Doğayı koruyor musun?"]]},
+    {de:"vermeiden",tr:"kaçınmak / önlemek",type:"Düzenli",pron:"[fɛɐ̯ˈmaɪdən]",conj:["vermeide","vermeidest","vermeidet","vermeiden","vermeidet","vermeiden"],examples:[["Ich vermeide Plastik.","Plastikten kaçınıyorum."],["Vermeidest du Müll?","Çöpten kaçınıyor musun?"]]},
+    
+        // --- Yeni 60 fiil (aile, ilişki, hobiler, sosyal, duygular, günlük hayat) ---
+
+    {de:"heiraten",tr:"evlenmek",type:"Düzenli",pron:"[ˈhaɪ̯ʁaːtən]",conj:["heirate","heiratest","heiratet","heiraten","heiratet","heiraten"],examples:[["Wir heiraten im Sommer.","Yazın evleniyoruz."],["Heiratest du bald?","Yakında evleniyor musun?"]]},
+    {de:"scheiden (sich)",tr:"boşanmak",type:"Düzenli (reflexiv)",pron:"[zɪç ˈʃaɪ̯dən]",conj:["scheide mich","scheidest dich","scheidet sich","scheiden uns","scheidet euch","scheiden sich"],examples:[["Sie scheiden sich.","Boşanıyorlar."],["Scheidest du dich?","Boşanıyor musun?"]]},
+    {de:"verloben (sich)",tr:"nişanlanmak",type:"Düzenli (reflexiv)",pron:"[zɪç fɛɐ̯ˈloːbən]",conj:["verlobe mich","verlobst dich","verlobt sich","verloben uns","verlobt euch","verloben sich"],examples:[["Wir verloben uns.","Nişanlanıyoruz."],["Verlobst du dich?","Nişanlanıyor musun?"]]},
+    {de:"küssen",tr:"öpmek",type:"Düzenli",pron:"[ˈkʏsən]",conj:["küsse","küsst","küsst","küssen","küsst","küssen"],examples:[["Ich küsse dich.","Seni öpüyorum."],["Küsst ihr euch?","Birbirinizi öpüyor musunuz?"]]},
+    {de:"umarmen",tr:"sarılmak",type:"Düzenli",pron:"[ʊmˈaʁmən]",conj:["umarme","umarmst","umarmt","umarmen","umarmt","umarmen"],examples:[["Ich umarme meine Mutter.","Anneme sarılıyorum."],["Umarmst du mich?","Bana sarılıyor musun?"]]},
+    {de:"streiten (sich)",tr:"kavga etmek",type:"Düzenli (reflexiv)",pron:"[zɪç ˈʃtʁaɪ̯tən]",conj:["streite mich","streitest dich","streitet sich","streiten uns","streitet euch","streiten sich"],examples:[["Wir streiten uns selten.","Nadir kavga ediyoruz."],["Streitest du oft?","Sık kavga ediyor musun?"]]},
+    {de:"versöhnen (sich)",tr:"barışmak",type:"Düzenli (reflexiv)",pron:"[zɪç fɛɐ̯ˈzøːnən]",conj:["versöhne mich","versöhnst dich","versöhnt sich","versöhnen uns","versöhnt euch","versöhnen sich"],examples:[["Wir versöhnen uns wieder.","Yine barışıyoruz."],["Versöhnst du dich?","Barışıyor musun?"]]},
+    {de:"vermissen",tr:"özlemek",type:"Düzenli",pron:"[fɛɐ̯ˈmɪsən]",conj:["vermiss","vermisst","vermisst","vermissen","vermisst","vermissen"],examples:[["Ich vermisse dich.","Seni özlüyorum."],["Vermisst du deine Familie?","Aileni özlüyor musun?"]]},
+    {de:"besuchen",tr:"ziyaret etmek",type:"Düzenli",pron:"[bəˈzuːxən]",conj:["besuche","besuchst","besucht","besuchen","besucht","besuchen"],examples:[["Ich besuche meine Großeltern.","Büyüklerimi ziyaret ediyorum."],["Besuchst du Freunde?","Arkadaşlarını ziyaret ediyor musun?"]]},
+    {de:"einladen",tr:"davet etmek",type:"Düzensiz",pron:"[ˈaɪ̯nlaːdən]",conj:["lade ein","lädst ein","lädt ein","laden ein","ladet ein","laden ein"],examples:[["Ich lade dich zum Essen ein.","Seni yemeğe davet ediyorum."],["Lädst du uns ein?","Bizi davet ediyor musun?"]]},
+    {de:"feiern",tr:"kutlamak",type:"Düzenli",pron:"[ˈfaɪ̯ɐn]",conj:["feiere","feierst","feiert","feiern","feiert","feiern"],examples:[["Wir feiern Geburtstag.","Doğum gününü kutluyoruz."],["Feierst du Silvester?","Yılbaşını kutluyor musun?"]]},
+    {de:"gratulieren",tr:"tebrik etmek",type:"Düzenli",pron:"[ɡʁatuˈliːʁən]",conj:["gratuliere","gratulierst","gratuliert","gratulieren","gratuliert","gratulieren"],examples:[["Ich gratuliere dir!","Seni tebrik ederim!"],["Gratulierst du zum Erfolg?","Başarı için tebrik ediyor musun?"]]},
+    {de:"helfen",tr:"yardım etmek",type:"Düzensiz",pron:"[ˈhɛlfən]",conj:["helfe","hilfst","hilft","helfen","helft","helfen"],examples:[["Ich helfe dir.","Sana yardım ediyorum."],["Hilfst du mir?","Bana yardım ediyor musun?"]]},
+    {de:"danken",tr:"teşekkür etmek",type:"Düzenli",pron:"[ˈdaŋkən]",conj:["danke","dankst","dankt","danken","dankt","danken"],examples:[["Ich danke dir sehr.","Çok teşekkür ederim."],["Dankst du immer?","Her zaman teşekkür ediyor musun?"]]},
+    {de:"entschuldigen (sich)",tr:"özür dilemek",type:"Düzenli (reflexiv)",pron:"[zɪç ɛntˈʃʊldɪɡən]",conj:["entschuldige mich","entschuldigst dich","entschuldigt sich","entschuldigen uns","entschuldigt euch","entschuldigen sich"],examples:[["Ich entschuldige mich.","Özür dilerim."],["Entschuldigst du dich?","Özür diliyor musun?"]]},
+    {de:"verzeihen",tr:"affetmek",type:"Düzensiz",pron:"[fɛɐ̯ˈt͡saɪ̯ən]",conj:["verzeihe","verzeihst","verzeiht","verzeihen","verzeiht","verzeihen"],examples:[["Ich verzeihe dir.","Seni affediyorum."],["Verzeihst du mir?","Beni affediyor musun?"]]},
+    {de:"vertrauen",tr:"güvenmek",type:"Düzenli",pron:"[fɛɐ̯ˈtʁaʊ̯ən]",conj:["vertraue","vertraust","vertraut","vertrauen","vertraut","vertrauen"],examples:[["Ich vertraue dir.","Sana güveniyorum."],["Vertraust du ihm?","Ona güveniyor musun?"]]},
+    {de:"lieben",tr:"sevmek (aşk)",type:"Düzenli",pron:"[ˈliːbən]",conj:["liebe","liebst","liebt","lieben","liebt","lieben"],examples:[["Ich liebe dich.","Seni seviyorum."],["Liebst du ihn?","Onu seviyor musun?"]]},
+    {de:"mögen",tr:"hoşlanmak / sevmek",type:"Düzensiz",pron:"[ˈmøːɡən]",conj:["mag","magst","mag","mögen","mögt","mögen"],examples:[["Ich mag dich sehr.","Senden çok hoşlanıyorum."],["Magst du Schokolade?","Çikolatayı sever misin?"]]},
+    {de:"hassen",tr:"nefret etmek",type:"Düzenli",pron:"[ˈhasən]",conj:["hasse","hasst","hasst","hassen","hasst","hassen"],examples:[["Ich hasse Lügen.","Yalana nefret ederim."],["Hasst du Regen?","Yağmurdan nefret ediyor musun?"]]},
+    {de:"malen",tr:"boyamak / resim yapmak",type:"Düzenli",pron:"[ˈmaːlən]",conj:["male","malst","malt","malen","malt","malen"],examples:[["Ich male ein Bild.","Resim yapıyorum."],["Malst du gern?","Resim yapmayı sever misin?"]]},
+    {de:"zeichnen",tr:"çizmek",type:"Düzenli",pron:"[ˈt͡saɪ̯çnən]",conj:["zeichne","zeichnest","zeichnet","zeichnen","zeichnet","zeichnen"],examples:[["Ich zeichne einen Baum.","Ağaç çiziyorum."],["Zeichnest du Porträts?","Portre mi çiziyorsun?"]]},
+    {de:"lesen",tr:"okumak",type:"Düzensiz",pron:"[ˈleːzən]",conj:["lese","liest","liest","lesen","lest","lesen"],examples:[["Ich lese ein Buch.","Kitap okuyorum."],["Liest du Zeitung?","Gazete okuyor musun?"]]},
+    {de:"schreiben",tr:"yazmak (mektup, hikaye)",type:"Düzensiz",pron:"[ˈʃʁaɪ̯bən]",conj:["schreibe","schreibst","schreibt","schreiben","schreibt","schreiben"],examples:[["Ich schreibe einen Brief.","Mektup yazıyorum."],["Schreibst du Gedichte?","Şiir mi yazıyorsun?"]]},
+    {de:"filme schauen",tr:"film izlemek",type:"Düzenli",pron:"[ˈfɪlmə ʃaʊ̯ən]",conj:["schaue Filme","schaust Filme","schaut Filme","schauen Filme","schaut Filme","schauen Filme"],examples:[["Ich schaue gern Filme.","Film izlemeyi severim."],["Schaust du Serien?","Dizi mi izliyorsun?"]]},
+    {de:"gamen",tr:"oyun oynamak (video oyunu)",type:"Düzenli",pron:"[ˈɡeɪ̯mən]",conj:["game","gamst","gamt","gamen","gamt","gamen"],examples:[["Ich game abends.","Akşamları oyun oynuyorum."],["Gamst du online?","Online mı oyun oynuyorsun?"]]},
+    {de:"reparieren",tr:"tamir etmek",type:"Düzenli",pron:"[ʁepaˈʁiːʁən]",conj:["repariere","reparierst","repariert","reparieren","repariert","reparieren"],examples:[["Ich repariere das Fahrrad.","Bisikleti tamir ediyorum."],["Reparierst du Handys?","Telefon tamir ediyor musun?"]]},
+    
+        // --- Yeni 60 fiil (alışveriş, yemek, spor detayları, iş görüşmesi, hava/mevsim, günlük) ---
+
+    {de:"kaufen",tr:"satın almak",type:"Düzenli",pron:"[ˈkaʊ̯fən]",conj:["kaufe","kaufst","kauft","kaufen","kauft","kaufen"],examples:[["Ich kaufe ein Auto.","Araba satın alıyorum."],["Kaufst du online?","Online mı satın alıyorsun?"]]},
+    {de:"verkaufen",tr:"satmak",type:"Düzenli",pron:"[fɛɐ̯ˈkaʊ̯fən]",conj:["verkaufe","verkaufst","verkauft","verkaufen","verkauft","verkaufen"],examples:[["Ich verkaufe mein Handy.","Telefonumu satıyorum."],["Verkaufst du Kleidung?","Giysi mi satıyorsun?"]]},
+    {de:"bestellen",tr:"sipariş vermek",type:"Düzenli",pron:"[bəˈʃtɛlən]",conj:["bestelle","bestellst","bestellt","bestellen","bestellt","bestellen"],examples:[["Ich bestelle Pizza.","Pizza sipariş veriyorum."],["Bestellst du Essen?","Yemek mi sipariş veriyorsun?"]]},
+    {de:"bezahlen",tr:"ödeme yapmak",type:"Düzenli",pron:"[bəˈt͡saːlən]",conj:["bezahle","bezahlst","bezahlt","bezahlen","bezahlt","bezahlen"],examples:[["Ich bezahle mit Karte.","Kartla ödüyorum."],["Bezahlst du bar?","Nakit mi ödüyorsun?"]]},
+    {de:"sparen",tr:"tasarruf etmek",type:"Düzenli",pron:"[ˈʃpaːʁən]",conj:["spare","sparst","spart","sparen","spart","sparen"],examples:[["Ich spare für ein Haus.","Ev için tasarruf ediyorum."],["Sparst du Geld?","Para mı tasarruf ediyorsun?"]]},
+    {de:"ausgeben",tr:"harcamak",type:"Düzensiz",pron:"[ˈaʊ̯sɡeːbən]",conj:["gebe aus","gibst aus","gibt aus","geben aus","gebt aus","geben aus"],examples:[["Ich gebe Geld aus.","Para harcıyorum."],["Gibst du viel aus?","Çok mu harcıyorsun?"]]},
+    {de:"kosten",tr:"maliyet etmek",type:"Düzenli",pron:"[ˈkɔstən]",conj:["koste","kostest","kostet","kosten","kostet","kosten"],examples:[["Das kostet 10 Euro.","Bu 10 Euro'ya mal oluyor."],["Kostet das viel?","Bu pahalı mı?"]]},
+    {de:"probieren",tr:"denemek (giysi/yemek)",type:"Düzenli",pron:"[pʁoˈbiːʁən]",conj:["probiere","probierst","probiert","probieren","probiert","probieren"],examples:[["Ich probiere die Jacke an.","Ceketi deniyorum."],["Probierst du das Essen?","Yemeği tadıyor musun?"]]},
+    {de:"essen",tr:"yemek yemek",type:"Düzensiz",pron:"[ˈɛsən]",conj:["esse","isst","isst","essen","esst","essen"],examples:[["Ich esse Mittagessen.","Öğle yemeği yiyorum."],["Isst du gesund?","Sağlıklı mı yiyorsun?"]]},
+    {de:"trinken",tr:"içmek",type:"Düzensiz",pron:"[ˈtʁɪŋkən]",conj:["trinke","trinkst","trinkt","trinken","trinkt","trinken"],examples:[["Ich trinke Tee.","Çay içiyorum."],["Trinkst du Alkohol?","Alkol içiyor musun?"]]},
+    {de:"kochen",tr:"pişirmek",type:"Düzenli",pron:"[ˈkɔxən]",conj:["koche","kochst","kocht","kochen","kocht","kochen"],examples:[["Ich koche Suppe.","Çorba pişiriyorum."],["Kochst du vegetarisch?","Vejetaryen mi pişiriyorsun?"]]},
+    {de:"backen",tr:"fırında pişirmek",type:"Düzensiz",pron:"[ˈbakən]",conj:["backe","bäckst","bäckt","backen","backt","backen"],examples:[["Ich backe Brot.","Ekmek pişiriyorum."],["Bäckst du Kuchen?","Kek mi pişiriyorsun?"]]},
+    {de:"grillen",tr:"ızgara yapmak",type:"Düzenli",pron:"[ˈɡʁɪlən]",conj:["grille","grillst","grillt","grillen","grillt","grillen"],examples:[["Wir grillen Fleisch.","Et ızgara yapıyoruz."],["Grillst du im Sommer?","Yazın ızgara yapıyor musun?"]]},
+    {de:"servieren",tr:"servis etmek",type:"Düzenli",pron:"[zɛʁˈviːʁən]",conj:["serviere","servierst","serviert","servieren","serviert","servieren"],examples:[["Der Kellner serviert das Essen.","Garson yemeği servis ediyor."],["Servierst du Wein?","Şarap mı servis ediyorsun?"]]},
+    {de:"spielen",tr:"spor yapmak / oynamak",type:"Düzenli",pron:"[ˈʃpiːlən]",conj:["spiele","spielst","spielt","spielen","spielt","spielen"],examples:[["Ich spiele Tennis.","Tenis oynuyorum."],["Spielst du Fußball?","Futbol oynuyor musun?"]]},
+    {de:"trainieren",tr:"antrenman yapmak",type:"Düzenli",pron:"[tʁɛˈniːʁən]",conj:["trainiere","trainierst","trainiert","trainieren","trainiert","trainieren"],examples:[["Ich trainiere im Gym.","Spor salonunda antrenman yapıyorum."],["Trainierst du Kraft?","Kuvvet antrenmanı yapıyor musun?"]]},
+    {de:"laufen",tr:"koşmak (spor)",type:"Düzensiz",pron:"[ˈlaʊ̯fən]",conj:["laufe","läufst","läuft","laufen","lauft","laufen"],examples:[["Ich laufe 5 km.","5 km koşuyorum."],["Läufst du schnell?","Hızlı mı koşuyorsun?"]]},
+    {de:"schwimmen",tr:"yüzmek (spor)",type:"Düzensiz",pron:"[ˈʃvɪmən]",conj:["schwimme","schwimmst","schwimmt","schwimmen","schwimmt","schwimmen"],examples:[["Ich schwimme im Pool.","Havuzda yüzüyorum."],["Schwimmst du Wettkämpfe?","Yarışlara mı katılıyorsun?"]]},
+    {de:"turnen",tr:"jimnastik yapmak",type:"Düzenli",pron:"[ˈtʊʁnən]",conj:["turne","turnst","turnt","turnen","turnt","turnen"],examples:[["Die Kinder turnen.","Çocuklar jimnastik yapıyor."],["Turnst du professionell?","Profesyonel jimnastik yapıyor musun?"]]},
+    {de:"gewinnen",tr:"kazanmak (spor/oyun)",type:"Düzensiz",pron:"[ɡəˈvɪnən]",conj:["gewinne","gewinnst","gewinnt","gewinnen","gewinnt","gewinnen"],examples:[["Ich gewinne das Spiel.","Oyunu kazanıyorum."],["Gewinnst du oft?","Sık mı kazanıyorsun?"]]},
+    {de:"verlieren",tr:"kaybetmek",type:"Düzensiz",pron:"[fɛɐ̯ˈliːʁən]",conj:["verliere","verlierst","verliert","verlieren","verliert","verlieren"],examples:[["Ich verliere das Match.","Maçı kaybediyorum."],["Verlierst du gern?","Kaybetmeyi sever misin?"]]},
+    {de:"vorbereiten",tr:"hazırlamak (görüşme için)",type:"Düzenli",pron:"[foːɐ̯bəˈʁaɪ̯tən]",conj:["vorbereite","vorbereitest","vorbereitet","vorbereiten","vorbereitet","vorbereiten"],examples:[["Ich vorbereite das Vorstellungsgespräch.","İş görüşmesine hazırlanıyorum."],["Vorbereitest du dich?","Hazırlanıyor musun?"]]},
+    {de:"fragen",tr:"sormak (görüşmede)",type:"Düzenli",pron:"[ˈfʁaːɡən]",conj:["frage","fragst","fragt","fragen","fragt","fragen"],examples:[["Ich frage nach dem Gehalt.","Maaşı soruyorum."],["Fragst du viele Fragen?","Çok soru soruyor musun?"]]},
+    {de:"antworten",tr:"cevap vermek",type:"Düzenli",pron:"[ˈantvɔʁtən]",conj:["antworte","antwortest","antwortet","antworten","antwortet","antworten"],examples:[["Ich antworte auf die Frage.","Soruya cevap veriyorum."],["Antwortest du ehrlich?","Dürüst cevap veriyor musun?"]]},
+    {de:"unterhalten (sich)",tr:"sohbet etmek",type:"Düzenli (reflexiv)",pron:"[zɪç ʊntɐˈhaltən]",conj:["unterhalte mich","unterhältst dich","unterhält sich","unterhalten uns","unterhaltet euch","unterhalten sich"],examples:[["Wir unterhalten uns gut.","İyi sohbet ediyoruz."],["Unterhältst du dich?","Sohbet ediyor musun?"]]},
+    {de:"regnen",tr:"yağmur yağmak",type:"Düzenli",pron:"[ˈʁeːɡnən]",conj:["regne","regnest","regnet","regnen","regnet","regnen"],examples:[["Es regnet stark.","Şiddetli yağmur yağıyor."],["Regnet es oft?","Sık yağmur yağıyor mu?"]]},
+    {de:"schneien",tr:"kar yağmak",type:"Düzenli",pron:"[ˈʃnaɪ̯ən]",conj:["schneie","schneist","schneit","schneien","schneit","schneien"],examples:[["Es schneit im Winter.","Kışın kar yağıyor."],["Schneit es?","Kar mı yağıyor?"]]},
+    {de:"scheinen",tr:"parlamak (güneş)",type:"Düzenli",pron:"[ˈʃaɪ̯nən]",conj:["scheine","scheinst","scheint","scheinen","scheint","scheinen"],examples:[["Die Sonne scheint.","Güneş parlıyor."],["Scheint die Sonne?","Güneş parlıyor mu?"]]},
+    {de:"frieren",tr:"donmak / üşümek",type:"Düzensiz",pron:"[ˈfʁiːʁən]",conj:["friere","frierst","friert","frieren","friert","frieren"],examples:[["Ich friere draußen.","Dışarıda üşüyorum."],["Frierst du?","Üşüyor musun?"]]},
+    {de:"erhitzen",tr:"ısıtmak",type:"Düzenli",pron:"[ɛɐ̯ˈhɪt͡sn̩]",conj:["erhitze","erhitzst","erhitzt","erhitzen","erhitzt","erhitzen"],examples:[["Ich erhitze das Wasser.","Suyu ısıtıyorum."],["Erhitzst du das Essen?","Yemeği ısıtıyor musun?"]]},
+    {de:"abkühlen",tr:"soğumak",type:"Düzenli",pron:"[ˈapkyːlən]",conj:["kühle ab","kühlst ab","kühlt ab","kühlen ab","kühlt ab","kühlen ab"],examples:[["Das Getränk kühlt ab.","İçecek soğuyor."],["Kühlst du es ab?","Onu soğutuyor musun?"]]},
+    {de:"blühen",tr:"çiçek açmak",type:"Düzenli",pron:"[ˈblyːən]",conj:["blühe","blühst","blüht","blühen","blüht","blühen"],examples:[["Die Blumen blühen.","Çiçekler açıyor."],["Blüht der Garten?","Bahçe çiçek açıyor mu?"]]},
+    {de:"wachsen",tr:"büyümek",type:"Düzensiz",pron:"[ˈvaksən]",conj:["wachse","wächst","wächst","wachsen","wachst","wachsen"],examples:[["Die Pflanzen wachsen.","Bitkiler büyüyor."],["Wächst das Kind?","Çocuk büyüyor mu?"]]},
+    {de:"ernten",tr:"hasat etmek",type:"Düzenli",pron:"[ˈɛʁntən]",conj:["ernte","erntest","erntet","ernten","erntet","ernten"],examples:[["Wir ernten Obst.","Meyve hasat ediyoruz."],["Erntest du Gemüse?","Sebze mi hasat ediyorsun?"]]},
+    {de:"verwelken",tr:"solmak (çiçek)",type:"Düzenli",pron:"[fɛɐ̯ˈvɛlkən]",conj:["verwelke","verwelkst","verwelkt","verwelken","verwelkt","verwelken"],examples:[["Die Rosen verwelken.","Güller soluyor."],["Verwelken die Blumen?","Çiçekler soluyor mu?"]]},
+    {de:"tauen",tr:"erimek (kar/buz)",type:"Düzenli",pron:"[ˈtaʊ̯ən]",conj:["taue","taust","taut","tauen","taut","tauen"],examples:[["Der Schnee taut.","Kar eriyor."],["Taut das Eis?","Buz eriyor mu?"]]},
+    {de:"donnern",tr:"gök gürlemek",type:"Düzenli",pron:"[ˈdɔnɐn]",conj:["donnere","donnerst","donnert","donnern","donnert","donnern"],examples:[["Es donnert laut.","Şiddetli gök gürültüsü var."],["Donnert es?","Gök mü gürliyor?"]]},
+    {de:"blitzen",tr:"şimşek çakmak",type:"Düzenli",pron:"[ˈblɪt͡sn̩]",conj:["blitze","blitzt","blitzt","blitzen","blitzt","blitzen"],examples:[["Es blitzt am Himmel.","Gökyüzünde şimşek çakıyor."],["Blitzt es?","Şimşek mi çakıyor?"]]},
+    {de:"wehen",tr:"esmek (rüzgar)",type:"Düzenli",pron:"[ˈveːən]",conj:["wehe","wehst","weht","wehen","weht","wehen"],examples:[["Der Wind weht stark.","Rüzgar sert esiyor."],["Weht der Wind?","Rüzgar esiyor mu?"]]},
+    {de:"stürmen",tr:"fırtına kopmak",type:"Düzenli",pron:"[ˈʃtʏʁmən]",conj:["stürme","stürmst","stürmt","stürmen","stürmt","stürmen"],examples:[["Es stürmt draußen.","Dışarıda fırtına var."],["Stürmt es?","Fırtına mı kopuyor?"]]},
+    {de:"aufklaren",tr:"açılmak (hava)",type:"Düzenli",pron:"[ˈaʊ̯fklaːʁən]",conj:["kläre auf","klärst auf","klärt auf","klären auf","klärt auf","klären auf"],examples:[["Das Wetter klärt auf.","Hava açılıyor."],["Klär auf?","Hava açılıyor mu?"]]},
+    {de:"bedecken",tr:"kaplamak (bulutla)",type:"Düzenli",pron:"[bəˈdɛkən]",conj:["bedecke","bedeckst","bedeckt","bedecken","bedeckt","bedecken"],examples:[["Wolken bedecken den Himmel.","Bulutlar gökyüzünü kaplıyor."],["Bedeckt es?","Kaplıyor mu?"]]},
+    {de:"verdüstern",tr:"kararmak",type:"Düzenli",pron:"[fɛɐ̯ˈdʏstɐn]",conj:["verdüstere","verdüsterst","verdüstert","verdüstern","verdüstert","verdüstern"],examples:[["Der Himmel verdüstert sich.","Gökyüzü kararıyor."],["Verdüstert es?","Kararıyor mu?"]]},
+    {de:"baden",tr:"banyo yapmak / yıkanmak",type:"Düzenli",pron:"[ˈbaːdən]",conj:["bade","badest","badet","baden","badet","baden"],examples:[["Ich bade in der Wanne.","Küvette banyo yapıyorum."],["Badest du?","Banyo yapıyor musun?"]]},
+    {de:"duschen",tr:"duş almak",type:"Düzenli",pron:"[ˈdʊʃən]",conj:["dusche","duschst","duscht","duschen","duscht","duschen"],examples:[["Ich dusche schnell.","Hızlı duş alıyorum."],["Duschst du morgens?","Sabah mı duş alıyorsun?"]]},
+    {de:"rasieren (sich)",tr:"tıraş olmak",type:"Düzenli (reflexiv)",pron:"[zɪç ʁaˈziːʁən]",conj:["rasiere mich","rasierst dich","rasiert sich","rasieren uns","rasiert euch","rasieren sich"],examples:[["Ich rasiere mich.","Tıraş oluyorum."],["Rasierst du dich täglich?","Her gün tıraş oluyor musun?"]]},
+    {de:"kämmen (sich)",tr:"saç taramak",type:"Düzenli (reflexiv)",pron:"[zɪç ˈkɛmən]",conj:["kämme mich","kämmst dich","kämmt sich","kämmen uns","kämmt euch","kämmen sich"],examples:[["Ich kämme mir die Haare.","Saçımı tarıyorum."],["Kämmst du dich?","Saçını tarıyor musun?"]]},
+    {de:"anziehen (sich)",tr:"giymek",type:"Düzensiz (reflexiv)",pron:"[zɪç ˈantsiːən]",conj:["ziehe mich an","ziehst dich an","zieht sich an","ziehen uns an","zieht euch an","ziehen sich an"],examples:[["Ich ziehe mich um.","Üzerimi değiştiriyorum."],["Ziehst du dich an?","Giyiniyor musun?"]]},
+    {de:"ausziehen (sich)",tr:"soyunmak",type:"Düzensiz (reflexiv)",pron:"[zɪç ˈaʊ̯stsiːən]",conj:["ziehe mich aus","ziehst dich aus","zieht sich aus","ziehen uns aus","zieht euch aus","ziehen sich aus"],examples:[["Ich ziehe mich aus.","Soyunuyorum."],["Ziehst du dich aus?","Soyunuyor musun?"]]},
+    {de:"schminken (sich)",tr:"makyaj yapmak",type:"Düzenli (reflexiv)",pron:"[zɪç ˈʃmɪŋkən]",conj:["schminke mich","schminkst dich","schminkt sich","schminken uns","schminkt euch","schminken sich"],examples:[["Ich schminke mich.","Makyaj yapıyorum."],["Schminkst du dich?","Makyaj yapıyor musun?"]]},
+    {de:"parfümieren (sich)",tr:"parfüm sürmek",type:"Düzenli (reflexiv)",pron:"[zɪç paʁfyˈmiːʁən]",conj:["parfümiere mich","parfümierst dich","parfümiert sich","parfümieren uns","parfümiert euch","parfümieren sich"],examples:[["Ich parfümiere mich.","Parfüm sürüyorum."],["Parfümierst du dich?","Parfüm sürüyor musun?"]]},
+    {de:"waschen (sich)",tr:"yıkanmak",type:"Düzensiz (reflexiv)",pron:"[zɪç ˈvaʃən]",conj:["wasche mich","wäschst dich","wäscht sich","waschen uns","wascht euch","waschen sich"],examples:[["Ich wasche mich.","Yıkanıyorum."],["Wäschst du dich?","Yıkanıyor musun?"]]},
+    {de:"zähne putzen",tr:"diş fırçalamak",type:"Düzenli",pron:"[ˈt͡sɛːnə ˈpʊt͡sn̩]",conj:["putze Zähne","putzt Zähne","putzt Zähne","putzen Zähne","putzt Zähne","putzen Zähne"],examples:[["Ich putze mir die Zähne.","Dişlerimi fırçalıyorum."],["Putzt du Zähne?","Diş fırçalıyor musun?"]]},
+    {de:"bügeln",tr:"ütü yapmak",type:"Düzenli",pron:"[ˈbyːɡl̩n]",conj:["bügle","büglst","bügelt","bügeln","bügelt","bügeln"],examples:[["Ich bügle das Hemd.","Gömleği ütülüyorum."],["Büglst du oft?","Sık ütü yapıyor musun?"]]},
+    {de:"nähen",tr:"dikmek (giysi)",type:"Düzenli",pron:"[ˈneːən]",conj:["nähe","nähst","näht","nähen","näht","nähen"],examples:[["Ich nähe einen Rock.","Etek dikiyorum."],["Nähst du Kleidung?","Giysi mi dikiyorsun?"]]},
+    {de:"stricken",tr:"örnek (yün)",type:"Düzenli",pron:"[ˈʃtʁɪkən]",conj:["stricke","strickst","strickt","stricken","strickt","stricken"],examples:[["Ich stricke einen Schal.","Atkı örüyorum."],["Strickst du?","Örüyor musun?"]]},
+    {de:"häkeln",tr:"tığ işi yapmak",type:"Düzenli",pron:"[ˈhɛːkəln]",conj:["häkle","häkelst","häkelt","häkeln","häkelt","häkeln"],examples:[["Ich häkle eine Decke.","Battaniye tığ işi yapıyorum."],["Häkelst du Mützen?","Şapka mı örüyorsun?"]]},
+    {de:"sammeln",tr:"toplamak (koleksiyon)",type:"Düzenli",pron:"[ˈzamlən]",conj:["sammle","sammelst","sammelt","sammeln","sammelt","sammeln"],examples:[["Ich sammle Briefmarken.","Pul topluyorum."],["Sammelst du Münzen?","Madeni para mı topluyorsun?"]]},
+    {de:"fotografieren",tr:"fotoğraf çekmek",type:"Düzenli",pron:"[fotoɡʁaˈfiːʁən]",conj:["fotografiere","fotografierst","fotografiert","fotografieren","fotografiert","fotografieren"],examples:[["Ich fotografiere Landschaften.","Manzara fotoğrafı çekiyorum."],["Fotografierst du Menschen?","İnsan mı çekiyorsun?"]]},
+    {de:"reisen",tr:"seyahat etmek",type:"Düzenli",pron:"[ˈʁaɪ̯zən]",conj:["reise","reist","reist","reisen","reist","reisen"],examples:[["Ich reise nach Spanien.","İspanya'ya seyahat ediyorum."],["Reist du allein?","Yalnız mı seyahat ediyorsun?"]]},
+    {de:"wandern",tr:"yürüyüş yapmak",type:"Düzenli",pron:"[ˈvandɐn]",conj:["wandere","wanderst","wandert","wandern","wandert","wandern"],examples:[["Wir wandern in den Bergen.","Dağlarda yürüyüş yapıyoruz."],["Wanderst du lang?","Uzun yürüyüş yapıyor musun?"]]},
+    {de:"campen",tr:"kamp yapmak",type:"Düzenli",pron:"[ˈkɛmpən]",conj:["campe","campst","campt","campen","campt","campen"],examples:[["Wir campen am See.","Gölde kamp yapıyoruz."],["Campst du im Zelt?","Çadırda mı kamp yapıyorsun?"]]},
+    {de:"angeln",tr:"balık tutmak",type:"Düzenli",pron:"[ˈaŋl̩n]",conj:["angle","angelst","angelt","angeln","angelt","angeln"],examples:[["Ich angle im Fluss.","Nehirde balık tutuyorum."],["Angelst du oft?","Sık balık tutuyor musun?"]]},
+    {de:"tauchen",tr:"dalış yapmak",type:"Düzenli",pron:"[ˈtaʊ̯xən]",conj:["tauche","tauchst","taucht","tauchen","taucht","tauchen"],examples:[["Ich tauche im Meer.","Denizde dalış yapıyorum."],["Tauchst du tief?","Derin dalış yapıyor musun?"]]},
+    {de:"segeln",tr:"yelken yapmak",type:"Düzenli",pron:"[ˈzeːɡl̩n]",conj:["segle","segelst","segelt","segeln","segelt","segeln"],examples:[["Wir segeln auf dem See.","Gölde yelken yapıyoruz."],["Segelst du?","Yelken yapıyor musun?"]]},
+    {de:"surfen",tr:"sörf yapmak",type:"Düzenli",pron:"[ˈzʊʁfən]",conj:["surfe","surfst","surft","surfen","surft","surfen"],examples:[["Ich surfe Wellen.","Dalga sörfü yapıyorum."],["Surfst du Wind?","Rüzgar sörfü yapıyor musun?"]]},
+    {de:"klettern",tr:"tırmanmak",type:"Düzenli",pron:"[ˈklɛtɐn]",conj:["klettere","kletterst","klettert","klettern","klettert","klettern"],examples:[["Ich klettere Berge.","Dağlara tırmanıyorum."],["Kletterst du indoor?","Kapalı alanda mı tırmanıyorsun?"]]},
+    {de:"radfahren",tr:"bisiklet sürmek",type:"Düzensiz",pron:"[ˈʁaːtfaːʁən]",conj:["fahre Rad","fährst Rad","fährt Rad","fahren Rad","fahrt Rad","fahren Rad"],examples:[["Ich fahre Rad zur Schule.","Okula bisikletle gidiyorum."],["Fährst du Rad?","Bisiklet sürüyor musun?"]]},
+    {de:"skaten",tr:"paten kaymak",type:"Düzenli",pron:"[ˈskeɪ̯tən]",conj:["skate","skatest","skatet","skaten","skatet","skaten"],examples:[["Ich skate im Park.","Parkta paten kayıyorum."],["Skatest du?","Paten kayıyor musun?"]]},
+    {de:"ski fahren",tr:"kayak yapmak",type:"Düzensiz",pron:"[skiː ˈfaːʁən]",conj:["fahre Ski","fährst Ski","fährt Ski","fahren Ski","fahrt Ski","fahren Ski"],examples:[["Ich fahre Ski im Winter.","Kışın kayak yapıyorum."],["Fährst du Ski?","Kayak yapıyor musun?"]]},
+    {de:"snowboarden",tr:"snowboard yapmak",type:"Düzenli",pron:"[ˈsnoʊboːɐ̯dən]",conj:["snowboarde","snowboardest","snowboardet","snowboarden","snowboardet","snowboarden"],examples:[["Ich snowboarde.","Snowboard yapıyorum."],["Snowboardest du?","Snowboard yapıyor musun?"]]},
+    {de:"golf spielen",tr:"golf oynamak",type:"Düzenli",pron:"[ɡɔlf ˈʃpiːlən]",conj:["spiele Golf","spielst Golf","spielt Golf","spielen Golf","spielt Golf","spielen Golf"],examples:[["Ich spiele Golf.","Golf oynuyorum."],["Spielst du Golf?","Golf oynuyor musun?"]]},
+    {de:"boxen",tr:"boks yapmak",type:"Düzenli",pron:"[ˈbɔksən]",conj:["boxe","boxst","boxt","boxen","boxt","boxen"],examples:[["Ich boxe im Ring.","Ringde boks yapıyorum."],["Boxst du?","Boks yapıyor musun?"]]},
+    {de:"yoga machen",tr:"yoga yapmak",type:"Düzenli",pron:"[ˈjoːɡa ˈmaxən]",conj:["mache Yoga","machst Yoga","macht Yoga","machen Yoga","macht Yoga","machen Yoga"],examples:[["Ich mache Yoga.","Yoga yapıyorum."],["Machst du Yoga?","Yoga yapıyor musun?"]]},
+    {de:"meditieren",tr:"meditasyon yapmak",type:"Düzenli",pron:"[mediˈtiːʁən]",conj:["meditiere","meditierst","meditiert","meditieren","meditiert","meditieren"],examples:[["Ich meditiere täglich.","Her gün meditasyon yapıyorum."],["Meditierst du?","Meditasyon yapıyor musun?"]]},
+    {de:"entspannen (sich)",tr:"rahatlamak",type:"Düzenli (reflexiv)",pron:"[zɪç ɛntˈʃpanən]",conj:["entspanne mich","entspannst dich","entspannt sich","entspannen uns","entspannt euch","entspannen sich"],examples:[["Ich entspanne mich.","Rahatlıyorum."],["Entspannst du dich?","Rahatlıyor musun?"]]},
+    {de:"ausruhen (sich)",tr:"dinlenmek",type:"Düzenli (reflexiv)",pron:"[zɪç ˈaʊ̯sʁuːən]",conj:["ruhe mich aus","ruhst dich aus","ruht sich aus","ruhen uns aus","ruht euch aus","ruhen sich aus"],examples:[["Ich ruhe mich aus.","Dinleniyorum."],["Ruhst du dich aus?","Dinleniyor musun?"]]},
+    {de:"träumen",tr:"rüya görmek",type:"Düzenli",pron:"[ˈtʁɔɪ̯mən]",conj:["träume","träumst","träumt","träumen","träumt","träumen"],examples:[["Ich träume von dir.","Seni rüyamda görüyorum."],["Träumst du nachts?","Gece rüya görüyor musun?"]]},
+    {de:"erinnern (sich)",tr:"hatırlamak",type:"Düzenli (reflexiv)",pron:"[zɪç ɛɐ̯ˈɪnəʁn]",conj:["erinnere mich","erinnerst dich","erinnert sich","erinnern uns","erinnert euch","erinnern sich"],examples:[["Ich erinnere mich an den Urlaub.","Tatili hatırlıyorum."],["Erinnerst du dich?","Hatırlıyor musun?"]]},
+    {de:"vergessen",tr:"unutmak",type:"Düzensiz",pron:"[fɛɐ̯ˈɡɛsən]",conj:["vergesse","vergisst","vergisst","vergessen","vergesst","vergessen"],examples:[["Ich vergesse meinen Schlüssel.","Anahtarımı unutuyorum."],["Vergisst du oft?","Sık mı unutuyorsun?"]]},
+    {de:"planen",tr:"plan yapmak",type:"Düzenli",pron:"[ˈplaːnən]",conj:["plane","planst","plant","planen","plant","planen"],examples:[["Ich plane den Tag.","Günü planlıyorum."],["Planst du die Woche?","Haftayı planlıyor musun?"]]},
+    {de:"organisieren",tr:"organize etmek",type:"Düzenli",pron:"[ɔʁɡaniˈziːʁən]",conj:["organisiere","organisierst","organisiert","organisieren","organisiert","organisieren"],examples:[["Ich organisiere die Party.","Partiyi organize ediyorum."],["Organisierst du Events?","Etkinlik mi organize ediyorsun?"]]},
+    {de:"warten",tr:"beklemek",type:"Düzenli",pron:"[ˈvaʁtən]",conj:["warte","wartest","wartet","warten","wartet","warten"],examples:[["Ich warte auf dich.","Seni bekliyorum."],["Wartest du lang?","Uzun mu bekliyorsun?"]]},
+    {de:"ankommen",tr:"varmak",type:"Düzensiz",pron:"[ˈankɔmən]",conj:["komme an","kommst an","kommt an","kommen an","kommt an","kommen an"],examples:[["Der Zug kommt an.","Tren varıyor."],["Kommt er pünktlich an?","Zamanında mı varıyor?"]]},
+    {de:"abfahren",tr:"kalkmak (araç)",type:"Düzensiz",pron:"[ˈapfaːʁən]",conj:["fahre ab","fährst ab","fährt ab","fahren ab","fahrt ab","fahren ab"],examples:[["Der Bus fährt ab.","Otobüs kalkıyor."],["Fährt er ab?","Kalkıyor mu?"]]},
+    {de:"verspäten (sich)",tr:"geç kalmak",type:"Düzenli (reflexiv)",pron:"[zɪç fɛɐ̯ˈʃpɛːtən]",conj:["verspäte mich","verspätest dich","verspätet sich","verspäten uns","verspätet euch","verspäten sich"],examples:[["Ich verspäte mich.","Geç kalıyorum."],["Verspätest du dich?","Geç mi kalıyorsun?"]]},
+    {de:"beeilen (sich)",tr:"acele etmek",type:"Düzenli (reflexiv)",pron:"[zɪç bəˈaɪ̯lən]",conj:["beeile mich","beeilst dich","beeilt sich","beeilen uns","beeilt euch","beeilen sich"],examples:[["Ich beeile mich.","Acele ediyorum."],["Beeilst du dich?","Acele ediyor musun?"]]},
+    {de:"hetzen (sich)",tr:"acele etmek / koşuşturmak",type:"Düzenli (reflexiv)",pron:"[zɪç ˈhɛt͡sn̩]",conj:["hetze mich","hetzt dich","hetzt sich","hetzen uns","hetzt euch","hetzen sich"],examples:[["Ich hetze mich nicht.","Acele etmiyorum."],["Hetzt du dich?","Koşuşturuyor musun?"]]},
+    {de:"verpassen",tr:"kaçırmak",type:"Düzenli",pron:"[fɛɐ̯ˈpasən]",conj:["verpasse","verpasst","verpasst","verpassen","verpasst","verpassen"],examples:[["Ich verpasse den Film.","Filmi kaçırıyorum."],["Verpasst du den Termin?","Randevuyu kaçırıyor musun?"]]},
+    {de:"erreichen",tr:"ulaşmak",type:"Düzenli",pron:"[ɛɐ̯ˈʁaɪ̯çən]",conj:["erreiche","erreichst","erreicht","erreichen","erreicht","erreichen"],examples:[["Ich erreiche das Ziel.","Hedefe ulaşıyorum."],["Erreichst du mich?","Bana ulaşıyor musun?"]]},
+    {de:"zurückkehren",tr:"dönmek",type:"Düzenli",pron:"[t͡suˈʁʏkˌkeːʁən]",conj:["kehre zurück","kehrst zurück","kehrt zurück","kehren zurück","kehrt zurück","kehren zurück"],examples:[["Ich kehre zurück.","Dönüyorum."],["Kehrst du zurück?","Dönüyor musun?"]]},
+    {de:"verlassen",tr:"terk etmek / ayrılmak",type:"Düzensiz",pron:"[fɛɐ̯ˈlasən]",conj:["verlasse","verlässt","verlässt","verlassen","verlasst","verlassen"],examples:[["Ich verlasse das Haus.","Evden ayrılıyorum."],["Verlässt du die Stadt?","Şehri terk ediyor musun?"]]},
+    {de:"eintreten",tr:"girmek",type:"Düzensiz",pron:"[ˈaɪ̯ntʁeːtən]",conj:["trete ein","trittst ein","tritt ein","treten ein","trett ein","treten ein"],examples:[["Ich trete ein.","İçeri giriyorum."],["Trittst du ein?","Giriyor musun?"]]},
+    {de:"ausgehen",tr:"dışarı çıkmak",type:"Düzensiz",pron:"[ˈaʊ̯sɡeːən]",conj:["gehe aus","gehst aus","geht aus","gehen aus","geht aus","gehen aus"],examples:[["Wir gehen aus.","Dışarı çıkıyoruz."],["Gehst du aus?","Dışarı çıkıyor musun?"]]},
+    {de:"heimkommen",tr:"eve gelmek",type:"Düzensiz",pron:"[ˈhaɪ̯mkɔmən]",conj:["komme heim","kommst heim","kommt heim","kommen heim","kommt heim","kommen heim"],examples:[["Ich komme heim.","Eve geliyorum."],["Kommst du heim?","Eve geliyor musun?"]]},
+    {de:"umziehen",tr:"taşınmak / değiştirmek",type:"Düzensiz",pron:"[ˈʊmt͡siːən]",conj:["ziehe um","ziehst um","zieht um","ziehen um","zieht um","ziehen um"],examples:[["Ich ziehe um.","Taşınıyorum."],["Ziehst du um?","Taşınıyor musun?"]]},
+    {de:"einziehen",tr:"taşınmak (yeni yere)",type:"Düzensiz",pron:"[ˈaɪ̯nt͡siːən]",conj:["ziehe ein","ziehst ein","zieht ein","ziehen ein","zieht ein","ziehen ein"],examples:[["Wir ziehen ein.","Yeni yere taşınıyoruz."],["Ziehst du ein?","Taşınıyor musun?"]]},
+    {de:"ausziehen",tr:"taşınmak (ayrılmak)",type:"Düzensiz",pron:"[ˈaʊ̯st͡siːən]",conj:["ziehe aus","ziehst aus","zieht aus","ziehen aus","zieht aus","ziehen aus"],examples:[["Ich ziehe aus.","Evi terk ediyorum."],["Ziehst du aus?","Taşınıyor musun?"]]},
+    {de:"mieten",tr:"kiralamak",type:"Düzenli",pron:"[ˈmiːtən]",conj:["miete","mietest","mietet","mieten","mietet","mieten"],examples:[["Ich miete eine Wohnung.","Daire kiralıyorum."],["Mietest du ein Auto?","Araba mı kiralıyorsun?"]]},
+    {de:"vermieten",tr:"kiraya vermek",type:"Düzenli",pron:"[fɛɐ̯ˈmiːtən]",conj:["vermiete","vermietest","vermietet","vermieten","vermietet","vermieten"],examples:[["Ich vermiete mein Zimmer.","Odamı kiraya veriyorum."],["Vermietest du das Haus?","Evi kiraya veriyor musun?"]]},
+    {de:"kaufen",tr:"satın almak (ev/araba)",type:"Düzenli",pron:"[ˈkaʊ̯fən]",conj:["kaufe","kaufst","kauft","kaufen","kauft","kaufen"],examples:[["Wir kaufen ein Haus.","Ev satın alıyoruz."],["Kaufst du neu?","Yeni mi satın alıyorsun?"]]},
+    {de:"verkaufen",tr:"satmak (ev/araba)",type:"Düzenli",pron:"[fɛɐ̯ˈkaʊ̯fən]",conj:["verkaufe","verkaufst","verkauft","verkaufen","verkauft","verkaufen"],examples:[["Ich verkaufe mein Auto.","Arabamı satıyorum."],["Verkaufst du teuer?","Pahalı mı satıyorsun?"]]},
+    {de:"renovieren",tr:"yenilemek (ev)",type:"Düzenli",pron:"[ʁenoˈviːʁən]",conj:["renoviere","renovierst","renoviert","renovieren","renoviert","renovieren"],examples:[["Wir renovieren die Küche.","Mutfağı yeniliyoruz."],["Renovierst du selbst?","Kendin mi yeniliyorsun?"]]},
+    {de:"dekorieren",tr:"dekor etmek",type:"Düzenli",pron:"[dekoˈʁiːʁən]",conj:["dekoriere","dekorierst","dekoriert","dekorieren","dekoriert","dekorieren"],examples:[["Ich dekoriere das Zimmer.","Odayı dekor ediyorum."],["Dekorierst du modern?","Modern mi dekor ediyorsun?"]]},
+    {de:"umstellen",tr:"yeniden düzenlemek",type:"Düzenli",pron:"[ˈʊmʃtɛlən]",conj:["stelle um","stellst um","stellt um","stellen um","stellt um","stellen um"],examples:[["Ich stelle die Möbel um.","Mobilyaları yeniden düzenliyorum."],["Stellst du um?","Yeniden düzenliyor musun?"]]},
+    {de:"einrichten",tr:"kurmak (oda/ev)",type:"Düzenli",pron:"[ˈaɪ̯nʁɪçtən]",conj:["richte ein","richtest ein","richtet ein","richten ein","richtet ein","richten ein"],examples:[["Ich richte das Büro ein.","Ofisi kuruyorum."],["Richtest du ein?","Kuruyor musun?"]]},
+    {de:"aufräumen",tr:"toparlamak",type:"Düzenli",pron:"[ˈaʊ̯fʁɔɪ̯mən]",conj:["räume auf","räumst auf","räumt auf","räumen auf","räumt auf","räumen auf"],examples:[["Ich räume mein Zimmer auf.","Odamı toparlıyorum."],["Räumst du auf?","Toparlıyor musun?"]]},
+    {de:"staubsaugen",tr:"elektrik süpürgesi çekmek",type:"Düzenli",pron:"[ˈʃtaʊ̯pzaʊ̯ɡən]",conj:["staubsauge","staubsaugst","staubsaugt","staubsaugen","staubsaugt","staubsaugen"],examples:[["Ich staubsauge den Teppich.","Halıyı süpürüyorum."],["Staubsaugst du?","Süpürüyor musun?"]]},
+    {de:"wischen",tr:"silmek",type:"Düzenli",pron:"[ˈvɪʃən]",conj:["wische","wischst","wischt","wischen","wischt","wischen"],examples:[["Ich wische den Boden.","Yeri siliyorum."],["Wischst du nass?","Islak mı siliyorsun?"]]},
+    {de:"waschen",tr:"yıkamak (çamaşır)",type:"Düzensiz",pron:"[ˈvaʃən]",conj:["wasche","wäschst","wäscht","waschen","wascht","waschen"],examples:[["Ich wasche die Wäsche.","Çamaşır yıkıyorum."],["Wäschst du?","Yıkıyor musun?"]]},
+    {de:"trocknen",tr:"kurutmak",type:"Düzenli",pron:"[ˈtʁɔknən]",conj:["trockne","trocknest","trocknet","trocknen","trocknet","trocknen"],examples:[["Ich trockne die Kleidung.","Giysileri kurutuyorum."],["Trocknest du draußen?","Dışarıda mı kurutuyorsun?"]]},
+    {de:"falten",tr:"katlamak",type:"Düzenli",pron:"[ˈfaltən]",conj:["falte","faltst","faltet","falten","faltet","falten"],examples:[["Ich falte die Wäsche.","Çamaşırı katlıyorum."],["Faltst du?","Katlıyor musun?"]]},
+    {de:"einkaufen",tr:"alışveriş yapmak",type:"Düzenli",pron:"[ˈaɪ̯nkaʊ̯fən]",conj:["kaufe ein","kaufst ein","kauft ein","kaufen ein","kauft ein","kaufen ein"],examples:[["Ich kaufe Lebensmittel ein.","Gıda alışverişi yapıyorum."],["Kaufst du ein?","Alışveriş yapıyor musun?"]]},
+    {de:"auspacken",tr:"paket açmak",type:"Düzenli",pron:"[ˈaʊ̯spakən]",conj:["packe aus","packst aus","packt aus","packen aus","packt aus","packen aus"],examples:[["Ich packe das Geschenk aus.","Hediyeyi açıyorum."],["Packst du aus?","Açıyor musun?"]]},
+    {de:"einpacken",tr:"paketlemek",type:"Düzenli",pron:"[ˈaɪ̯npakən]",conj:["packe ein","packst ein","packt ein","packen ein","packt ein","packen ein"],examples:[["Ich packe das Geschenk ein.","Hediyeyi paketliyorum."],["Packst du ein?","Paketliyor musun?"]]},
+    {de:"verschicken",tr:"göndermek (paket)",type:"Düzenli",pron:"[fɛɐ̯ˈʃɪkən]",conj:["verschicke","verschickst","verschickt","verschicken","verschickt","verschicken"],examples:[["Ich verschicke das Paket.","Paketi gönderiyorum."],["Verschickst du?","Gönderiyor musun?"]]},
+    {de:"empfangen",tr:"almak (paket/misafir)",type:"Düzenli",pron:"[ɛmpˈfaŋən]",conj:["empfange","empfängst","empfängt","empfangen","empfangt","empfangen"],examples:[["Ich empfange Gäste.","Misafir kabul ediyorum."],["Empfängst du Post?","Posta alıyor musun?"]]},
+    {de:"öffnen",tr:"açmak (kapı/kutu)",type:"Düzenli",pron:"[ˈœfnən]",conj:["öffne","öffnest","öffnet","öffnen","öffnet","öffnen"],examples:[["Ich öffne die Tür.","Kapıyı açıyorum."],["Öffnest du das Fenster?","Pencereyi açıyor musun?"]]},
+    {de:"schließen",tr:"kapatmak",type:"Düzensiz",pron:"[ˈʃliːsən]",conj:["schließe","schließt","schließt","schließen","schließt","schließen"],examples:[["Ich schließe das Fenster.","Pencereyi kapatıyorum."],["Schließt du die Tür?","Kapıyı kapatıyor musun?"]]},
+    {de:"klopfen",tr:"kapı çalmak",type:"Düzenli",pron:"[ˈklɔpfən]",conj:["klopfe","klopfst","klopft","klopfen","klopft","klopfen"],examples:[["Ich klopfe an die Tür.","Kapıya vuruyorum."],["Klopfst du?","Kapı mı çalıyorsun?"]]},
+    {de:"klingeln",tr:"zil çalmak",type:"Düzenli",pron:"[ˈklɪŋəln]",conj:["klingele","klingelst","klingelt","klingeln","klingelt","klingeln"],examples:[["Ich klingele.","Zili çalıyorum."],["Klingelst du?","Zil mi çalıyorsun?"]]},
+    {de:"eintreffen",tr:"varmak (yerine)",type:"Düzenli",pron:"[ˈaɪ̯ntʁɛfən]",conj:["treffe ein","triffst ein","trifft ein","treffen ein","trefft ein","treffen ein"],examples:[["Der Gast trifft ein.","Misafir geliyor."],["Triffst du ein?","Geliyor musun?"]]},
+    {de:"absagen",tr:"iptal etmek",type:"Düzenli",pron:"[ˈapzaːɡən]",conj:["sage ab","sagst ab","sagt ab","sagen ab","sagt ab","sagen ab"],examples:[["Ich sage das Treffen ab.","Toplantıyı iptal ediyorum."],["Sagst du ab?","İptal ediyor musun?"]]},
+    {de:"verschlafen",tr:"geç uyanmak / uyuyakalmak",type:"Düzensiz",pron:"[fɛɐ̯ˈʃlaːfən]",conj:["verschlafe","verschläfst","verschläft","verschlafen","verschlaft","verschlafen"],examples:[["Ich verschlafe den Wecker.","Alarmı kaçırıyorum."],["Verschläfst du?","Geç mi uyanıyorsun?"]]},
+    {de:"aufwachen",tr:"uyanmak",type:"Düzenli",pron:"[ˈaʊ̯fva:xən]",conj:["wache auf","wachst auf","wacht auf","wachen auf","wacht auf","wachen auf"],examples:[["Ich wache früh auf.","Erken uyanıyorum."],["Wachst du auf?","Uyanıyor musun?"]]},
+    {de:"einschlafen",tr:"uyuyakalmak",type:"Düzensiz",pron:"[ˈaɪ̯nʃla:fən]",conj:["schlafe ein","schläfst ein","schläft ein","schlafen ein","schlaft ein","schlafen ein"],examples:[["Ich schlafe ein.","Uyuyakalıyorum."],["Schläfst du ein?","Uyuyakalıyor musun?"]]},
+    {de:"schnarchen",tr:"horlamak",type:"Düzenli",pron:"[ˈʃnarxən]",conj:["schnarche","schnarchst","schnarcht","schnarchen","schnarcht","schnarchen"],examples:[["Du schnarchst nachts.","Gece horluyorsun."],["Schnarchst du?","Horluyor musun?"]]},
+    {de:"gähnen",tr:"esnemek",type:"Düzenli",pron:"[ˈɡɛːnən]",conj:["gähne","gähnst","gähnt","gähnen","gähnt","gähnen"],examples:[["Ich gähne müde.","Yorgun esniyorum."],["Gähnst du?","Esniyor musun?"]]},
+    {de:"husten",tr:"öksürmek",type:"Düzenli",pron:"[ˈhʊstən]",conj:["huste","hustest","hustet","husten","hustet","husten"],examples:[["Ich huste krank.","Hasta öksürüyorum."],["Hustest du?","Öksürüyor musun?"]]},
+    {de:"niesen",tr:"hapşırmak",type:"Düzenli",pron:"[ˈniːzən]",conj:["niese","niest","niest","niesen","niest","niesen"],examples:[["Ich niese allergisch.","Alerjik hapşırıyorum."],["Niest du?","Hapşırıyor musun?"]]},
+    {de:"atmen",tr:"nefes almak",type:"Düzenli",pron:"[ˈaːtmən]",conj:["atme","atmest","atmet","atmen","atmet","atmen"],examples:[["Ich atme tief.","Derin nefes alıyorum."],["Atmest du ruhig?","Sakin nefes alıyor musun?"]]},
+    {de:"seufzen",tr:"iç çekmek",type:"Düzenli",pron:"[ˈzɔɪ̯ft͡sn̩]",conj:["seufze","seufzst","seufzt","seufzen","seufzt","seufzen"],examples:[["Ich seufze traurig.","Üzgün iç çekiyorum."],["Seufzst du?","İç çekiyor musun?"]]},
+    {de:"lächeln",tr:"gülümsemek",type:"Düzenli",pron:"[ˈlɛçəln]",conj:["lächle","lächelst","lächelt","lächeln","lächelt","lächeln"],examples:[["Ich lächle glücklich.","Mutlu gülümsüyorum."],["Lächelst du?","Gülümsüyor musun?"]]},
+    {de:"weinen",tr:"ağlamak",type:"Düzenli",pron:"[ˈvaɪ̯nən]",conj:["weine","weinst","weint","weinen","weint","weinen"],examples:[["Ich weine traurig.","Üzgün ağlıyorum."],["Weinst du?","Ağlıyor musun?"]]},
+    {de:"lachen",tr:"gülmek",type:"Düzenli",pron:"[ˈlaxən]",conj:["lache","lachst","lacht","lachen","lacht","lachen"],examples:[["Ich lache laut.","Yüksek sesle gülüyorum."],["Lachst du?","Gülüyor musun?"]]},
+    {de:"flüstern",tr:"fısıldamak",type:"Düzenli",pron:"[ˈflʏstɐn]",conj:["flüstere","flüsterst","flüstert","flüstern","flüstert","flüstern"],examples:[["Ich flüstere leise.","Sessiz fısıldıyorum."],["Flüsterst du?","Fısıldıyor musun?"]]},
+    {de:"schreien",tr:"bağırmak",type:"Düzenli",pron:"[ˈʃʁaɪ̯ən]",conj:["schreie","schreist","schreit","schreien","schreit","schreien"],examples:[["Ich schreie laut.","Yüksek sesle bağırıyorum."],["Schreist du?","Bağırıyor musun?"]]},
+    {de:"singen",tr:"şarkı söylemek",type:"Düzensiz",pron:"[ˈzɪŋən]",conj:["singe","singst","singt","singen","singt","singen"],examples:[["Ich singe ein Lied.","Şarkı söylüyorum."],["Singst du?","Şarkı söylüyor musun?"]]},
+    {de:"pfeifen",tr:"ıslık çalmak",type:"Düzenli",pron:"[ˈpfaɪ̯fən]",conj:["pfeife","pfeifst","pfeift","pfeifen","pfeift","pfeifen"],examples:[["Ich pfeife eine Melodie.","Bir melodi ıslık çalıyorum."],["Pfeifst du?","Islık çalıyor musun?"]]},
+    {de:"klatschen",tr:"alkışlamak",type:"Düzenli",pron:"[ˈklatʃən]",conj:["klatsche","klatschst","klatscht","klatschen","klatscht","klatschen"],examples:[["Ich klatsche Beifall.","Alkışlıyorum."],["Klatschst du?","Alkışlıyor musun?"]]},
+    {de:"stampfen",tr:"ayak vurmak",type:"Düzenli",pron:"[ˈʃtampfən]",conj:["stampfe","stampfst","stampft","stampfen","stampft","stampfen"],examples:[["Ich stampfe mit dem Fuß.","Ayağımı vuruyorum."],["Stampfst du?","Ayak mı vuruyorsun?"]]},
+    {de:"klopfen",tr:"vurmak (kalp/eli)",type:"Düzenli",pron:"[ˈklɔpfən]",conj:["klopfe","klopfst","klopft","klopfen","klopft","klopfen"],examples:[["Mein Herz klopft schnell.","Kalbim hızlı atıyor."],["Klopfst du?","Vuruyor musun?"]]},
+    {de:"zittern",tr:"titremek",type:"Düzenli",pron:"[ˈt͡sɪtɐn]",conj:["zittere","zitterst","zittert","zittern","zittert","zittern"],examples:[["Ich zittere vor Kälte.","Soğuktan titriyorum."],["Zitterst du?","Titriyor musun?"]]},
+    {de:"schwitzen",tr:"terlemek",type:"Düzenli",pron:"[ˈʃvɪt͡sn̩]",conj:["schwitze","schwitzt","schwitzt","schwitzen","schwitzt","schwitzen"],examples:[["Ich schwitze beim Sport.","Sporda terliyorum."],["Schwitzt du?","Terliyor musun?"]]},
+    {de:"riechen",tr:"koklamak",type:"Düzenli",pron:"[ˈʁiːçən]",conj:["rieche","riechst","riecht","riechen","riecht","riechen"],examples:[["Ich rieche die Blumen.","Çiçekleri kokluyorum."],["Riechst du das?","Bunu kokluyor musun?"]]},
+    {de:"schmecken",tr:"tatmak",type:"Düzenli",pron:"[ˈʃmɛkən]",conj:["schmecke","schmeckst","schmeckt","schmecken","schmeckt","schmecken"],examples:[["Ich schmecke das Essen.","Yemeğin tadına bakıyorum."],["Schmeckst du?","Tatıyor musun?"]]},
+    {de:"berühren",tr:"dokunmak",type:"Düzenli",pron:"[bəˈʁyːʁən]",conj:["berühre","berührst","berührt","berühren","berührt","berühren"],examples:[["Ich berühre das Objekt.","Nesneye dokunuyorum."],["Berührst du?","Dokunuyor musun?"]]},
+    {de:"fühlen",tr:"hissetmek",type:"Düzenli",pron:"[ˈfyːlən]",conj:["fühle","fühlst","fühlt","fühlen","fühlt","fühlen"],examples:[["Ich fühle die Wärme.","Sıcaklığı hissediyorum."],["Fühlst du?","Hissediyor musun?"]]},
+    {de:"sehen",tr:"görmek",type:"Düzensiz",pron:"[ˈzeːən]",conj:["sehe","siehst","sieht","sehen","seht","sehen"],examples:[["Ich sehe dich.","Seni görüyorum."],["Siehst du?","Görüyor musun?"]]},
+    {de:"hören",tr:"duymak",type:"Düzenli",pron:"[ˈhøːʁən]",conj:["höre","hörst","hört","hören","hört","hören"],examples:[["Ich höre Musik.","Müzik duyuyorum."],["Hörst du?","Duyuyor musun?"]]},
+    {de:"riechen",tr:"kokusunu almak",type:"Düzenli",pron:"[ˈʁiːçən]",conj:["rieche","riechst","riecht","riechen","riecht","riechen"],examples:[["Ich rieche den Duft.","Kokuyu alıyorum."],["Riechst du den Rauch?","Dumanı kokluyor musun?"]]},
+    {de:"schmecken",tr:"tadını almak",type:"Düzenli",pron:"[ˈʃmɛkən]",conj:["schmecke","schmeckst","schmeckt","schmecken","schmeckt","schmecken"],examples:[["Ich schmecke den Salz.","Tuzu tadıyorum."],["Schmeckst du den Zucker?","Şekeri tadıyor musun?"]]},
+    {de:"fühlen",tr:"dokunarak hissetmek",type:"Düzenli",pron:"[ˈfyːlən]",conj:["fühle","fühlst","fühlt","fühlen","fühlt","fühlen"],examples:[["Ich fühle die Oberfläche.","Yüzeye dokunarak hissediyorum."],["Fühlst du die Textur?","Dokuyu hissediyor musun?"]]},
+    {de:"denken",tr:"düşünmek",type:"Düzenli",pron:"[ˈdɛŋkən]",conj:["denke","denkst","denkt","denken","denkt","denken"],examples:[["Ich denke nach.","Düşünüyorum."],["Denkst du?","Düşünüyor musun?"]]},
+    {de:"glauben",tr:"inanmak",type:"Düzenli",pron:"[ˈɡlaʊ̯bən]",conj:["glaube","glaubst","glaubt","glauben","glaubt","glauben"],examples:[["Ich glaube dir.","Sana inanıyorum."],["Glaubst du?","İnanıyor musun?"]]},
+    {de:"wissen",tr:"bilmek",type:"Düzensiz",pron:"[ˈvɪsən]",conj:["weiß","weißt","weiß","wissen","wisst","wissen"],examples:[["Ich weiß die Antwort.","Cevabı biliyorum."],["Weißt du?","Biliyor musun?"]]},
+    {de:"vermuten",tr:"tahmin etmek",type:"Düzenli",pron:"[fɛɐ̯ˈmuːtən]",conj:["vermute","vermutest","vermutet","vermuten","vermutet","vermuten"],examples:[["Ich vermute das.","Tahmin ediyorum."],["Vermutest du?","Tahmin ediyor musun?"]]},
+    {de:"erwarten",tr:"beklemek (umutla)",type:"Düzenli",pron:"[ɛɐ̯ˈvaʁtən]",conj:["erwarte","erwartest","erwartet","erwarten","erwartet","erwarten"],examples:[["Ich erwarte Gäste.","Misafir bekliyorum."],["Erwartest du Erfolg?","Başarı mı bekliyorsun?"]]},
+    {de:"hoffen",tr:"umut etmek",type:"Düzenli",pron:"[ˈhɔfən]",conj:["hoffe","hoffst","hofft","hoffen","hofft","hoffen"],examples:[["Ich hoffe auf das Beste.","En iyisini umut ediyorum."],["Hoffst du?","Umut ediyor musun?"]]},
+    {de:"fürchten",tr:"korkmak",type:"Düzenli",pron:"[ˈfʏʁçtən]",conj:["fürchte","fürchtest","fürchtet","fürchten","fürchtet","fürchten"],examples:[["Ich fürchte die Dunkelheit.","Karanlıktan korkuyorum."],["Fürchtest du?","Korkuyor musun?"]]},
+    {de:"zweifeln",tr:"şüphe etmek",type:"Düzenli",pron:"[ˈt͡svaɪ̯fl̩n]",conj:["zweifle","zweifelst","zweifelt","zweifeln","zweifelt","zweifeln"],examples:[["Ich zweifle daran.","Bundan şüphe ediyorum."],["Zweifelst du?","Şüphe ediyor musun?"]]},
+    {de:"überraschen",tr:"şaşırtmak",type:"Düzenli",pron:"[yːbɐˈʁaʃən]",conj:["überrasche","überraschst","überrascht","überraschen","überrascht","überraschen"],examples:[["Ich überrasche dich.","Seni şaşırtıyorum."],["Überraschst du?","Şaşırtıyor musun?"]]},
+    {de:"enttäuschen",tr:"hayal kırıklığına uğratmak",type:"Düzenli",pron:"[ɛntˈtɔɪ̯ʃən]",conj:["enttäusche","enttäuschst","enttäuscht","enttäuschen","enttäuscht","enttäuschen"],examples:[["Ich enttäusche dich nicht.","Seni hayal kırıklığına uğratmıyorum."],["Enttäuschst du?","Hayal kırıklığı yaratıyor musun?"]]},
+    {de:"begeistern",tr:"heyecanlandırmak",type:"Düzenli",pron:"[bəˈɡaɪ̯stɐn]",conj:["begeistere","begeisterst","begeistert","begeistern","begeistert","begeistern"],examples:[["Das begeistert mich.","Bu beni heyecanlandırıyor."],["Begeisterst du?","Heyecanlandırıyor musun?"]]},
+    {de:"motivieren",tr:"motive etmek",type:"Düzenli",pron:"[motiˈviːʁən]",conj:["motiviere","motivierst","motiviert","motivieren","motiviert","motivieren"],examples:[["Ich motiviere das Team.","Takımı motive ediyorum."],["Motivierst du?","Motive ediyor musun?"]]},
+    {de:"inspirieren",tr:"ilham vermek",type:"Düzenli",pron:"[ɪnspiˈʁiːʁən]",conj:["inspiriere","inspirierst","inspiriert","inspirieren","inspiriert","inspirieren"],examples:[["Das inspiriert mich.","Bu bana ilham veriyor."],["Inspirierst du?","İlham veriyor musun?"]]},
+    {de:"beeindrucken",tr:"etkilemek",type:"Düzenli",pron:"[bəˈaɪ̯ndʁʊkən]",conj:["beeindrucke","beeindruckst","beeindruckt","beeindrucken","beeindruckt","beeindrucken"],examples:[["Das beeindruckt mich.","Bu beni etkiliyor."],["Beeindruckst du?","Etkiliyor musun?"]]},
+    {de:"verwirren",tr:"kafasını karıştırmak",type:"Düzenli",pron:"[fɛɐ̯ˈvɪʁən]",conj:["verwirre","verwirrst","verwirrt","verwirren","verwirrt","verwirren"],examples:[["Das verwirrt mich.","Bu kafamı karıştırıyor."],["Verwirrst du?","Karıştırıyor musun?"]]},
+    {de:"klären",tr:"açıklığa kavuşturmak",type:"Düzenli",pron:"[ˈklɛːʁən]",conj:["kläre","klärst","klärt","klären","klärt","klären"],examples:[["Ich kläre das Missverständnis.","Yanlış anlamayı açıklığa kavuşturuyorum."],["Klärst du?","Açıklığa kavuşturuyor musun?"]]},
+    {de:"erklären",tr:"açıklamak",type:"Düzenli",pron:"[ɛɐ̯ˈklɛːʁən]",conj:["erkläre","erklärst","erklärt","erklären","erklärt","erklären"],examples:[["Ich erkläre die Regel.","Kuralı açıklıyorum."],["Erklärst du?","Açıklıyor musun?"]]},
+    {de:"beschreiben",tr:"tanımlamak",type:"Düzenli",pron:"[bəˈʃʁaɪ̯bən]",conj:["beschreibe","beschreibst","beschreibt","beschreiben","beschreibt","beschreiben"],examples:[["Ich beschreibe das Problem.","Sorunu tanımlıyorum."],["Beschreibst du?","Tanımlıyor musun?"]]},
+    {de:"vergleichen",tr:"karşılaştırmak",type:"Düzenli",pron:"[fɛɐ̯ˈɡlaɪ̯çən]",conj:["vergleiche","vergleichst","vergleicht","vergleichen","vergleicht","vergleichen"],examples:[["Ich vergleiche die Preise.","Fiyatları karşılaştırıyorum."],["Vergleichst du?","Karşılaştırıyor musun?"]]},
+    {de:"bewerten",tr:"değerlendirmek",type:"Düzenli",pron:"[bəˈveːʁtən]",conj:["bewerte","bewertest","bewertet","bewerten","bewertet","bewerten"],examples:[["Ich bewertete das Produkt.","Ürünü değerlendiriyorum."],["Bewertest du?","Değerlendiriyor musun?"]]},
+    {de:"empfehlen",tr:"tavsiye etmek",type:"Düzenli",pron:"[ɛmpˈfeːlən]",conj:["empfehle","empfiehlst","empfiehlt","empfehlen","empfehlt","empfehlen"],examples:[["Ich empfehle das Buch.","Kitabı tavsiye ediyorum."],["Empfiehlst du?","Tavsiye ediyor musun?"]]},
+    {de:"warnen",tr:"uyarmak",type:"Düzenli",pron:"[ˈvaʁnən]",conj:["warne","warnst","warnt","warnen","warnt","warnen"],examples:[["Ich warne dich.","Seni uyarıyorum."],["Warnst du?","Uyarıyor musun?"]]},
+    {de:"beraten",tr:"danışmanlık yapmak",type:"Düzenli",pron:"[bəˈʁaːtən]",conj:["berate","berätst","berät","beraten","beratet","beraten"],examples:[["Ich berate den Kunden.","Müşteriye danışmanlık yapıyorum."],["Berätst du?","Danışmanlık yapıyor musun?"]]},
+    {de:"unterstützen",tr:"desteklemek",type:"Düzenli",pron:"[ʊntɐˈʃtʏt͡sn̩]",conj:["unterstütze","unterstützt","unterstützt","unterstützen","unterstützt","unterstützen"],examples:[["Ich unterstütze dich.","Seni destekliyorum."],["Unterstützt du?","Destekliyor musun?"]]},
+    {de:"fördern",tr:"teşvik etmek",type:"Düzenli",pron:"[ˈfœʁdɐn]",conj:["fördere","förderst","fördert","fördern","fördert","fördern"],examples:[["Ich fördere das Projekt.","Projeyi teşvik ediyorum."],["Förderst du?","Teşvik ediyor musun?"]]},
+    {de:"hindern",tr:"engel olmak",type:"Düzenli",pron:"[ˈhɪndɐn]",conj:["hindere","hinderst","hindert","hindern","hindert","hindern"],examples:[["Nichts hindert mich.","Hiçbir şey bana engel olmuyor."],["Hinderst du?","Engel oluyor musun?"]]},
+    {de:"verhindern",tr:"önlemek",type:"Düzenli",pron:"[fɛɐ̯ˈhɪndɐn]",conj:["verhindere","verhinderst","verhindert","verhindern","verhindert","verhindern"],examples:[["Ich verhindere den Unfall.","Kazayı önlüyorum."],["Verhinderst du?","Önliyor musun?"]]},
+    {de:"erlauben",tr:"izin vermek",type:"Düzenli",pron:"[ɛɐ̯ˈlaʊ̯bən]",conj:["erlaube","erlaubst","erlaubt","erlauben","erlaubt","erlauben"],examples:[["Ich erlaube das.","Buna izin veriyorum."],["Erlaubst du?","İzin veriyor musun?"]]},
+    {de:"verbieten",tr:"yasaklamak",type:"Düzensiz",pron:"[fɛɐ̯ˈbiːtən]",conj:["verbiete","verbietest","verbietet","verbieten","verbietet","verbieten"],examples:[["Ich verbiete das Rauchen.","Sigara içmeyi yasaklıyorum."],["Verbietest du?","Yasaklıyor musun?"]]},
+    {de:"zwingen",tr:"zorlamak",type:"Düzensiz",pron:"[ˈt͡svɪŋən]",conj:["zwinge","zwingst","zwingt","zwingen","zwingt","zwingen"],examples:[["Ich zwinge dich nicht.","Seni zorlamıyorum."],["Zwingst du?","Zorliyor musun?"]]},
+    {de:"überreden",tr:"ikna etmek",type:"Düzenli",pron:"[yːbɐˈʁeːdən]",conj:["überrede","überredest","überredet","überreden","überredet","überreden"],examples:[["Ich überrede dich.","Seni ikna ediyorum."],["Überredest du?","İkna ediyor musun?"]]},
+    {de:"überzeugen",tr:"kandırmak",type:"Düzenli",pron:"[yːbɐˈt͡sɔɪ̯ɡən]",conj:["überzeuge","überzeugst","überzeugt","überzeugen","überzeugt","überzeugen"],examples:[["Ich überzeuge ihn.","Onu kandırıyorum."],["Überzeugst du?","Kandırıyor musun?"]]},
+    {de:"loben",tr:"övemek",type:"Düzenli",pron:"[ˈloːbən]",conj:["lobe","lobst","lobt","loben","lobt","loben"],examples:[["Ich lobe dich.","Seni övüyorum."],["Lobst du?","Övüyor musun?"]]},
+    {de:"kritisieren",tr:"eleştirmek",type:"Düzenli",pron:"[kʁitiˈziːʁən]",conj:["kritisiere","kritisierst","kritisiert","kritisieren","kritisiert","kritisieren"],examples:[["Ich kritisiere die Arbeit.","İşi eleştiriyorum."],["Kritisierst du?","Eleştiriyor musun?"]]},
+    {de:"beschuldigen",tr:"suçlamak",type:"Düzenli",pron:"[bəˈʃʊldɪɡən]",conj:["beschuldige","beschuldigst","beschuldigt","beschuldigen","beschuldigt","beschuldigen"],examples:[["Ich beschuldige ihn.","Onu suçluyorum."],["Beschuldigst du?","Suçluyor musun?"]]},
+    {de:"verteidigen",tr:"savunmak",type:"Düzenli",pron:"[fɛɐ̯ˈtaɪ̯dɪɡən]",conj:["verteidige","verteidigst","verteidigt","verteidigen","verteidigt","verteidigen"],examples:[["Ich verteidige dich.","Seni savunuyorum."],["Verteidigst du?","Savunuyor musun?"]]},
+    {de:"angreifen",tr:"saldırmak",type:"Düzenli",pron:"[ˈanɡʁaɪ̯fən]",conj:["greife an","greifst an","greift an","greifen an","greift an","greifen an"],examples:[["Ich greife nicht an.","Saldırmıyorum."],["Greifst du an?","Saldırıyor musun?"]]},
+    {de:"abwehren",tr:"savuşturmak",type:"Düzenli",pron:"[ˈapveːʁən]",conj:["wehre ab","wehrst ab","wehrt ab","wehren ab","wehrt ab","wehren ab"],examples:[["Ich wehre den Angriff ab.","Saldırıyı savuşturuyorum."],["Wehrst du ab?","Savuşturuyor musun?"]]},
+    {de:"kämpfen",tr:"dövüşmek",type:"Düzenli",pron:"[ˈkɛmpfən]",conj:["kämpfe","kämpfst","kämpft","kämpfen","kämpft","kämpfen"],examples:[["Ich kämpfe für Recht.","Adalet için dövüşüyorum."],["Kämpfst du?","Dövüşüyor musun?"]]},
+    {de:"siegen",tr:"galip gelmek",type:"Düzenli",pron:"[ˈziːɡən]",conj:["siege","siegst","siegt","siegen","siegt","siegen"],examples:[["Ich siege im Kampf.","Savaşı kazanıyorum."],["Siegst du?","Kazanıyor musun?"]]},
+    {de:"unterliegen",tr:"yenilmek",type:"Düzensiz",pron:"[ʊntɐˈliːɡən]",conj:["unterliege","unterliegst","unterliegt","unterliegen","unterliegt","unterliegen"],examples:[["Ich unterliege.","Yeniliyorum."],["Unterliegst du?","Yeniliyor musun?"]]},
+    {de:"feiern",tr:"kutlamak",type:"Düzenli",pron:"[ˈfaɪ̯ɐn]",conj:["feiere","feierst","feiert","feiern","feiert","feiern"],examples:[["Wir feiern den Sieg.","Zaferi kutluyoruz."],["Feierst du?","Kutluyor musun?"]]},
+    {de:"trauern",tr:"yas tutmak",type:"Düzenli",pron:"[ˈtʁaʊ̯ɐn]",conj:["trauere","traurst","trauert","trauern","trauert","trauern"],examples:[["Ich trauere um ihn.","Ona yas tutuyorum."],["Traurst du?","Yas tutuyor musun?"]]},
+    {de:"begraben",tr:"gömmek",type:"Düzenli",pron:"[bəˈɡʁaːbən]",conj:["begrabe","begräbst","begräbt","begraben","begrabt","begraben"],examples:[["Wir begraben den Toten.","Ölüyü gömüyoruz."],["Begräbst du?","Gömüyor musun?"]]},
+    {de:"erinnern",tr:"hatırlatmak",type:"Düzenli",pron:"[ɛɐ̯ˈɪnəʁn]",conj:["erinnere","erinnerst","erinnert","erinnern","erinnert","erinnern"],examples:[["Ich erinnere dich.","Sana hatırlatıyorum."],["Erinnerst du?","Hatırlatıyor musun?"]]},
+    {de:"vergessen",tr:"unutmak",type:"Düzensiz",pron:"[fɛɐ̯ˈɡɛsən]",conj:["vergesse","vergisst","vergisst","vergessen","vergesst","vergessen"],examples:[["Ich vergesse den Termin.","Randevuyu unutuyorum."],["Vergisst du?","Unutuyor musun?"]]},
+    {de:"notieren",tr:"not almak",type:"Düzenli",pron:"[noˈtiːʁən]",conj:["notiere","notierst","notiert","notieren","notiert","notieren"],examples:[["Ich notiere die Adresse.","Adresi not alıyorum."],["Notierst du?","Not alıyor musun?"]]},
+    {de:"markieren",tr:"işaretlemek",type:"Düzenli",pron:"[maʁˈkiːʁən]",conj:["markiere","markierst","markiert","markieren","markiert","markieren"],examples:[["Ich markiere den Text.","Metni işaretliyorum."],["Markierst du?","İşaretliyor musun?"]]},
+    {de:"löschen",tr:"silmek",type:"Düzenli",pron:"[ˈlœʃən]",conj:["lösche","löschst","löscht","löschen","löscht","löschen"],examples:[["Ich lösche die Datei.","Dosyayı siliyorum."],["Löschst du?","Siliyor musun?"]]},
+    {de:"kopieren",tr:"kopyalamak",type:"Düzenli",pron:"[koˈpiːʁən]",conj:["kopiere","kopierst","kopiert","kopieren","kopiert","kopieren"],examples:[["Ich kopiere den Text.","Metni kopyalıyorum."],["Kopierst du?","Kopyalıyor musun?"]]},
+    {de:"einfügen",tr:"yapıştırmak",type:"Düzenli",pron:"[ˈaɪ̯nfyːɡən]",conj:["füge ein","fügst ein","fügt ein","fügen ein","fügt ein","fügen ein"],examples:[["Ich füge den Text ein.","Metni yapıştırıyorum."],["Fügst du ein?","Yapıştırıyor musun?"]]},
+    {de:"drucken",tr:"yazdır mak",type:"Düzenli",pron:"[ˈdʁʊkən]",conj:["drucke","druckst","druckt","drucken","druckt","drucken"],examples:[["Ich drucke das Dokument.","Belgeyi yazdırıyorum."],["Druckst du?","Yazdırıyor musun?"]]},
+    {de:"scannen",tr:"taramak",type:"Düzenli",pron:"[ˈskɛnən]",conj:["scanne","scannst","scannt","scannen","scannt","scannen"],examples:[["Ich scanne das Foto.","Fotoğrafı tarıyorum."],["Scannst du?","Tarıyor musun?"]]},
+    {de:"faxen",tr:"faks çekmek",type:"Düzenli",pron:"[ˈfaksən]",conj:["faxe","faxst","faxt","faxen","faxt","faxen"],examples:[["Ich faxe das Formular.","Formu faksla gönderiyorum."],["Faxst du?","Faks çekiyor musun?"]]},
+    {de:"telefonieren",tr:"telefon etmek",type:"Düzenli",pron:"[telefoˈniːʁən]",conj:["telefoniere","telefonierst","telefoniert","telefonieren","telefoniert","telefonieren"],examples:[["Ich telefoniere mit dir.","Seninle telefonlaşıyorum."],["Telefonierst du?","Telefon ediyor musun?"]]},
+    {de:"chatten",tr:"chat yapmak",type:"Düzenli",pron:"[ˈtʃɛtən]",conj:["chatte","chattest","chattet","chatten","chattet","chatten"],examples:[["Ich chatte online.","Online chat yapıyorum."],["Chattest du?","Chat yapıyor musun?"]]},
+    {de:"mailen",tr:"e-posta göndermek",type:"Düzenli",pron:"[ˈmeɪ̯lən]",conj:["maile","mailst","mailt","mailen","mailt","mailen"],examples:[["Ich maile die Info.","Bilgiyi e-posta ile gönderiyorum."],["Mailst du?","E-posta gönderiyor musun?"]]},
+    {de:"posten",tr:"paylaşmak (sosyal medya)",type:"Düzenli",pron:"[ˈpoːstən]",conj:["poste","postest","postet","posten","postet","posten"],examples:[["Ich poste ein Foto.","Fotoğraf paylaşıyorum."],["Postest du?","Paylaşıyor musun?"]]},
+    {de:"liken",tr:"beğenmek (sosyal medya)",type:"Düzenli",pron:"[ˈlaɪ̯kən]",conj:["like","likest","liket","liken","liket","liken"],examples:[["Ich like den Post.","Gönderiyi beğeniyorum."],["Likest du?","Beğeniyor musun?"]]},
+    {de:"kommentieren",tr:"yorum yapmak",type:"Düzenli",pron:"[kɔmɛnˈtiːʁən]",conj:["kommentiere","kommentierst","kommentiert","kommentieren","kommentiert","kommentieren"],examples:[["Ich kommentiere den Artikel.","Makaleye yorum yapıyorum."],["Kommentierst du?","Yorum yapıyor musun?"]]},
+    {de:"teilen",tr:"paylaşmak",type:"Düzenli",pron:"[ˈtaɪ̯lən]",conj:["teile","teilst","teilt","teilen","teilt","teilen"],examples:[["Ich teile den Link.","Linki paylaşıyorum."],["Teilst du?","Paylaşıyor musun?"]]},
+    {de:"folgen",tr:"takip etmek",type:"Düzenli",pron:"[ˈfɔlɡən]",conj:["folge","folgst","folgt","folgen","folgt","folgen"],examples:[["Ich folge dir.","Seni takip ediyorum."],["Folgst du?","Takip ediyor musun?"]]},
+    {de:"blockieren",tr:"engellemek",type:"Düzenli",pron:"[blɔˈkiːʁən]",conj:["blockiere","blockierst","blockiert","blockieren","blockiert","blockieren"],examples:[["Ich blockiere den User.","Kullanıcıyı engelliyorum."],["Blockierst du?","Engelliyor musun?"]]},
+    {de:"melden",tr:"bildirmek / rapor etmek",type:"Düzenli",pron:"[ˈmɛldən]",conj:["melde","meldest","meldet","melden","meldet","melden"],examples:[["Ich melde den Spam.","Spam'ı bildiriyorum."],["Meldest du?","Bildiriyor musun?"]]},
+    {de:"surfen",tr:"sörf yapmak (internet)",type:"Düzenli",pron:"[ˈzʊʁfən]",conj:["surfe","surfst","surft","surfen","surft","surfen"],examples:[["Ich surfe im Netz.","İnternette sörf yapıyorum."],["Surfst du?","Sörf yapıyor musun?"]]},
+    {de:"downloaden",tr:"indirmek",type:"Düzenli",pron:"[daʊnˈloːdən]",conj:["downloade","downloadest","downloadet","downloaden","downloadet","downloaden"],examples:[["Ich downloade die App.","Uygulamayı indiriyorum."],["Downloadest du?","İndiriyor musun?"]]},
+    {de:"uploaden",tr:"yüklemek",type:"Düzenli",pron:"[ʊpˈloːdən]",conj:["uploade","uploadest","uploadet","uploaden","uploadet","uploaden"],examples:[["Ich uploade das Video.","Videoyu yüklüyorum."],["Uploadest du?","Yükliyor musun?"]]},
+    {de:"streamen",tr:"canlı yayın yapmak",type:"Düzenli",pron:"[ˈstʁiːmən]",conj:["streame","streamst","streamt","streamen","streamt","streamen"],examples:[["Ich streame Musik.","Müzik yayınlıyorum."],["Streamst du?","Yayın yapıyor musun?"]]},
+    {de:"updaten",tr:"güncellemek",type:"Düzenli",pron:"[ʊpˈdeɪ̯tən]",conj:["update","updatest","updatet","updaten","updatet","updaten"],examples:[["Ich update die Software.","Yazılımı güncelliyorum."],["Updatest du?","Güncelliyor musun?"]]},
+    {de:"installieren",tr:"kurmak (program)",type:"Düzenli",pron:"[ɪnstaˈliːʁən]",conj:["installiere","installierst","installiert","installieren","installiert","installieren"],examples:[["Ich installiere das Programm.","Programı kuruyorum."],["Installierst du?","Kuruyor musun?"]]},
+    {de:"deinstallieren",tr:"kaldırmak (program)",type:"Düzenli",pron:"[deɪnstaˈliːʁən]",conj:["deinstalliere","deinstallierst","deinstalliert","deinstallieren","deinstalliert","deinstallieren"],examples:[["Ich deinstalliere die App.","Uygulamayı kaldırıyorum."],["Deinstallierst du?","Kaldırıyor musun?"]]},
+    {de:"restarten",tr:"yeniden başlatmak",type:"Düzenli",pron:"[ʁiːˈstaːʁtən]",conj:["restarte","restartest","restartet","restarten","restartet","restarten"],examples:[["Ich restarte den Computer.","Bilgisayarı yeniden başlatıyorum."],["Restartest du?","Yeniden başlatıyor musun?"]]},
+    {de:"shutdown",tr:"kapatmak (bilgisayar)",type:"Düzenli",pron:"[ˈʃʌtdaʊn]",conj:["shutdowne","shutdownst","shutdownt","shutdownen","shutdownt","shutdownen"],examples:[["Ich shutdowne den PC.","Bilgisayarı kapatıyorum."],["Shutdownst du?","Kapatıyor musun?"]]},
+    {de:"upgraden",tr:"yükseltmek (yazılım)",type:"Düzenli",pron:"[ʊpˈɡʁeɪ̯dən]",conj:["upgrade","upgradest","upgradet","upgraden","upgradet","upgraden"],examples:[["Ich upgrade das System.","Sistemi yükseltiyorum."],["Upgradest du?","Yükseltiyor musun?"]]},
+    {de:"debuggen",tr:"hata ayıklamak",type:"Düzenli",pron:"[diːˈbʌɡən]",conj:["debugge","debuggst","debuggt","debuggen","debuggt","debuggen"],examples:[["Ich debugge den Code.","Kodu hata ayıklama yapıyorum."],["Debuggst du?","Hata ayıklama yapıyor musun?"]]},
+    {de:"programmieren",tr:"programlamak",type:"Düzenli",pron:"[pʁoɡʁaˈmiːʁən]",conj:["programmiere","programmierst","programmiert","programmieren","programmiert","programmieren"],examples:[["Ich programmiere eine App.","Uygulama programlıyorum."],["Programmierst du?","Programlıyor musun?"]]},
+    {de:"codieren",tr:"kodlamak",type:"Düzenli",pron:"[koˈdiːʁən]",conj:["codiere","codierst","codiert","codieren","codiert","codieren"],examples:[["Ich codiere den Algorithmus.","Algoritmayı kodluyorum."],["Codierst du?","Kodluyor musun?"]]},
+    {de:"testen",tr:"test etmek",type:"Düzenli",pron:"[ˈtɛstən]",conj:["teste","testest","testet","testen","testet","testen"],examples:[["Ich teste das Programm.","Programı test ediyorum."],["Testest du?","Test ediyor musun?"]]},
+    {de:"deployen",tr:"dağıtmak (yazılım)",type:"Düzenli",pron:"[diːˈplɔɪ̯ən]",conj:["deploye","deployest","deployet","deployen","deployet","deployen"],examples:[["Ich deploye die App.","Uygulamayı dağıtıyorum."],["Deployest du?","Dağıtıyor musun?"]]},
+    {de:"backupen",tr:"yedeklemek",type:"Düzenli",pron:"[ˈbɛkʌpən]",conj:["backupe","backupst","backupt","backupen","backupt","backupen"],examples:[["Ich backupe die Daten.","Veriyi yedekliyorum."],["Backupst du?","Yedekliyor musun?"]]},
+    {de:"restoren",tr:"geri yüklemek",type:"Düzenli",pron:"[ʁɛsˈtoːʁən]",conj:["restore","restorest","restoret","restoren","restoret","restoren"],examples:[["Ich restore die Datei.","Dosyayı geri yüklüyorum."],["Restorest du?","Geri yüklüyor musun?"]]},
+    {de:"encrypten",tr:"şifrelemek",type:"Düzenli",pron:"[ɛnˈkʁɪptən]",conj:["encrypte","encryptest","encryptet","encrypten","encryptet","encrypten"],examples:[["Ich encrypte die Nachricht.","Mesajı şifreliyorum."],["Encryptest du?","Şifreliyor musun?"]]},
+    {de:"decrypten",tr:"şifre çözmek",type:"Düzenli",pron:"[diːˈkʁɪptən]",conj:["decrypte","decryptest","decryptet","decrypten","decryptet","decrypten"],examples:[["Ich decrypte die Datei.","Dosyanın şifresini çözüyorum."],["Decryptest du?","Şifre çözüyor musun?"]]},
+    {de:"hacken",tr:"hacklemek",type:"Düzenli",pron:"[ˈhɛkən]",conj:["hacke","hackst","hackt","hacken","hackt","hacken"],examples:[["Ich hacke nicht.","Hacklemiyorum."],["Hackst du?","Hackliyor musun?"]]},
+    {de:"viren entfernen",tr:"virüs kaldırmak",type:"Düzenli",pron:"[ˈviːʁən ɛntˈfɛʁnən]",conj:["entferne Viren","entfernst Viren","entfernt Viren","entfernen Viren","entfernt Viren","entfernen Viren"],examples:[["Ich entferne Viren.","Virüsleri kaldırıyorum."],["Entfernst du Viren?","Virüs kaldırıyor musun?"]]},
+    {de:"updaten",tr:"güncellemek",type:"Düzenli",pron:"[ʊpˈdeɪ̯tən]",conj:["update","updatest","updatet","updaten","updatet","updaten"],examples:[["Ich update das System.","Sistemi güncelliyorum."],["Updatest du?","Güncelliyor musun?"]]},
+    {de:"rebooten",tr:"yeniden başlatmak",type:"Düzenli",pron:"[ʁiːˈbuːtən]",conj:["reboote","rebootest","rebootet","rebooten","rebootet","rebooten"],examples:[["Ich reboote den Computer.","Bilgisayarı yeniden başlatıyorum."],["Rebootest du?","Yeniden başlatıyor musun?"]]},
+    {de:"konfigurieren",tr:"yapılandırmak",type:"Düzenli",pron:"[kɔnfiɡuˈʁiːʁən]",conj:["konfiguriere","konfigurierst","konfiguriert","konfigurieren","konfiguriert","konfigurieren"],examples:[["Ich konfiguriere das Netzwerk.","Ağı yapılandırıyorum."],["Konfigurierst du?","Yapılandırıyor musun?"]]},
+    {de:"troubleshooten",tr:"sorun gidermek",type:"Düzenli",pron:"[ˈtʁuːbəlʃuːtən]",conj:["troubleshoot","troubleshootest","troubleshootet","troubleshooten","troubleshootet","troubleshooten"],examples:[["Ich troubleshoot das Problem.","Sorunu gideriyorum."],["Troubleshootest du?","Sorun gideriyor musun?"]]},
+    {de:"analysieren",tr:"analiz etmek",type:"Düzenli",pron:"[anaˈlyːziːʁən]",conj:["analysiere","analysierst","analysiert","analysieren","analysiert","analysieren"],examples:[["Ich analysiere die Daten.","Veriyi analiz ediyorum."],["Analysierst du?","Analiz ediyor musun?"]]},
+    {de:"optimieren",tr:"optimize etmek",type:"Düzenli",pron:"[ɔptiˈmiːʁən]",conj:["optimiere","optimierst","optimiert","optimieren","optimiert","optimieren"],examples:[["Ich optimiere den Code.","Kodu optimize ediyorum."],["Optimierst du?","Optimize ediyor musun?"]]},
+    {de:"skalieren",tr:"ölçeklendirmek",type:"Düzenli",pron:"[skaˈliːʁən]",conj:["skaliere","skalierst","skaliert","skalieren","skaliert","skalieren"],examples:[["Ich skaliere das System.","Sistemi ölçeklendiriyorum."],["Skalierst du?","Ölçeklendiriyor musun?"]]},
+    {de:"integrate",tr:"entegrasyon yapmak",type:"Düzenli",pron:"[ɪntəˈɡʁiːʁən]",conj:["integriere","integrierst","integriert","integrate","integriert","integrate"],examples:[["Ich integriere die API.","API'yi entegre ediyorum."],["Integrierst du?","Entegre ediyor musun?"]]},
+    {de:"deployen",tr:"dağıtmak (yazılım)",type:"Düzenli",pron:"[diːˈplɔɪ̯ən]",conj:["deploye","deployest","deployet","deployen","deployet","deployen"],examples:[["Ich deploye die App.","Uygulamayı dağıtıyorum."],["Deployest du?","Dağıtıyor musun?"]]},
+    {de:"monitoren",tr:"izlemek (sistem)",type:"Düzenli",pron:"[moniˈtoːʁən]",conj:["monitore","monitorst","monitort","monitoren","monitort","monitoren"],examples:[["Ich monitore das Netzwerk.","Ağı izliyorum."],["Monitorst du?","İzliyor musun?"]]},
+    {de:"loggen",tr:"kayıt tutmak",type:"Düzenli",pron:"[ˈlɔɡən]",conj:["logge","loggst","loggt","loggen","loggt","loggen"],examples:[["Ich logge die Ereignisse.","Olayları kaydediyorum."],["Loggst du?","Kaydediyor musun?"]]},
+    {de:"debuggen",tr:"hata ayıklamak",type:"Düzenli",pron:"[diːˈbʌɡən]",conj:["debugge","debuggst","debuggt","debuggen","debuggt","debuggen"],examples:[["Ich debugge den Bug.","Hatayı ayıklama yapıyorum."],["Debuggst du?","Ayıklama yapıyor musun?"]]},
+    {de:"patchen",tr:"yama yapmak",type:"Düzenli",pron:"[ˈpɛtʃən]",conj:["patche","patchst","patcht","patchen","patcht","patchen"],examples:[["Ich patche das System.","Sisteme yama yapıyorum."],["Patchst du?","Yama yapıyor musun?"]]},
+    {de:"releasen",tr:"yayınlamak (versiyon)",type:"Düzenli",pron:"[ʁiˈliːzən]",conj:["release","releasest","releaset","releasen","releaset","releasen"],examples:[["Ich release die Version.","Versiyonu yayınlıyorum."],["Releasest du?","Yayınlıyor musun?"]]},
+    {de:"commiten",tr:"commit yapmak (git)",type:"Düzenli",pron:"[kɔˈmɪtən]",conj:["commite","commitest","commitet","commiten","commitet","commiten"],examples:[["Ich commite den Code.","Kodu commit ediyorum."],["Commitest du?","Commit yapıyor musun?"]]},
+    {de:"pushen",tr:"push yapmak (git)",type:"Düzenli",pron:"[ˈpʊʃən]",conj:["pushe","pushst","pusht","pushen","pusht","pushen"],examples:[["Ich pushe die Änderungen.","Değişiklikleri push ediyorum."],["Pushst du?","Push yapıyor musun?"]]},
+    {de:"pullen",tr:"pull yapmak (git)",type:"Düzenli",pron:"[ˈpʊlən]",conj:["pulle","pullst","pullt","pullen","pullt","pullen"],examples:[["Ich pulle den Repo.","Depoyu pull ediyorum."],["Pullst du?","Pull yapıyor musun?"]]},
+    {de:"mergen",tr:"merge yapmak",type:"Düzenli",pron:"[ˈmɛʁdʒən]",conj:["merge","mergest","merget","mergen","merget","mergen"],examples:[["Ich merge die Branches.","Dalları merge ediyorum."],["Mergest du?","Merge yapıyor musun?"]]},
+    {de:"branchen",tr:"branch oluşturmak",type:"Düzenli",pron:"[ˈbʁɛntʃən]",conj:["branche","branchst","brancht","branchen","brancht","branchen"],examples:[["Ich branche neu.","Yeni branch oluşturuyorum."],["Branchst du?","Branch oluşturuyor musun?"]]},
+    {de:"checkouten",tr:"checkout yapmak",type:"Düzenli",pron:"[ˈtʃɛkaʊ̯tən]",conj:["checkoute","checkoutest","checkoutet","checkouten","checkoutet","checkouten"],examples:[["Ich checkoute den Branch.","Branch'ı checkout ediyorum."],["Checkoutest du?","Checkout yapıyor musun?"]]},
+    {de:"clonen",tr:"klonlamak (repo)",type:"Düzenli",pron:"[ˈkloːnən]",conj:["clone","clonest","clonet","clonen","clonet","clonen"],examples:[["Ich clone das Repo.","Depoyu klonluyorum."],["Clonest du?","Klonluyor musun?"]]},
+    {de:"forken",tr:"fork yapmak",type:"Düzenli",pron:"[ˈfɔʁkən]",conj:["forke","forkst","forkt","forken","forkt","forken"],examples:[["Ich forke das Projekt.","Projeyi fork ediyorum."],["Forkst du?","Fork yapıyor musun?"]]},
+    {de:"pullrequesten",tr:"pull request açmak",type:"Düzenli",pron:"[ˈpʊlʁɪkwɛstən]",conj:["pullrequeste","pullrequestest","pullrequestet","pullrequesten","pullrequestet","pullrequesten"],examples:[["Ich pullrequeste die Änderung.","Değişikliği pull request ile gönderiyorum."],["Pullrequestest du?","Pull request açıyor musun?"]]},
+    {de:"reviewen",tr:"incelemek (kod)",type:"Düzenli",pron:"[ʁiˈvjuːən]",conj:["reviewe","reviewest","reviewet","reviewen","reviewet","reviewen"],examples:[["Ich reviewe den Code.","Kodu inceliyorum."],["Reviewest du?","İnceliyor musun?"]]}
+   
+
+
+
+];
+
+// State
+let currentIndex = 0;
+let errorCount = 0;
+let answeredQuestions = new Set();
+let currentQuiz = null;
+let currentQuestion = null;
+let currentMode = 'de-tr';
+
+// Initialize
+function init() {
+    updateVerbCard();
+    updateProgress();
+}
+
+function updateVerbCard() {
+    const verb = verbsData[currentIndex];
+    document.getElementById('verbName').textContent = verb.de;
+    document.getElementById('verbType').textContent = verb.type;
+    document.getElementById('pronunciation').textContent = verb.pron;
+    document.getElementById('meaning').textContent = verb.tr;
+    
+    const conjGrid = document.getElementById('conjugations');
+    conjGrid.innerHTML = `
+        <div class="conj-item"><strong>ich</strong> ${verb.conj[0]}</div>
+        <div class="conj-item"><strong>du</strong> ${verb.conj[1]}</div>
+        <div class="conj-item"><strong>er/sie</strong> ${verb.conj[2]}</div>
+        <div class="conj-item"><strong>wir</strong> ${verb.conj[3]}</div>
+        <div class="conj-item"><strong>ihr</strong> ${verb.conj[4]}</div>
+        <div class="conj-item"><strong>sie/Sie</strong> ${verb.conj[5]}</div>
+    `;
+    
+    const examplesDiv = document.getElementById('examples');
+    examplesDiv.innerHTML = verb.examples.map(ex => `
+        <div class="example-box" onclick="toggleExample(this)">
+            <div class="example-de">${ex[0]}</div>
+            <div class="example-tr">${ex[1]}</div>
+        </div>
+    `).join('');
+}
+
+function updateProgress() {
+    document.getElementById('currentNum').textContent = currentIndex + 1;
+    document.getElementById('progressBar').style.width = ((currentIndex + 1) / verbsData.length * 100) + '%';
+}
+
+function toggleExample(el) {
+    el.classList.toggle('show');
+}
+
+function nextVerb() {
+    if (currentIndex < verbsData.length - 1) {
+        currentIndex++;
+        updateVerbCard();
+        updateProgress();
+    } else {
+        alert('Tüm fiilleri tamamladınız! 🎉');
+    }
+}
+
+function prevVerb() {
+    if (currentIndex > 0) {
+        currentIndex--;
+        updateVerbCard();
+        updateProgress();
+    }
+}
+
+function markLearned() {
+    const learned = parseInt(document.getElementById('learnedCount').textContent) + 1;
+    document.getElementById('learnedCount').textContent = learned;
+    const streak = parseInt(document.getElementById('streakCount').textContent) + 1;
+    document.getElementById('streakCount').textContent = streak;
+    nextVerb();
+}
+
+// Ses çalma fonksiyonu - Brave Browser desteği ile
+function playAudio() {
+    const verb = verbsData[currentIndex];
+    const errorDiv = document.getElementById('audioError');
+    
+    // Önceki hatayı gizle
+    errorDiv.style.display = 'none';
+    
+    // SpeechSynthesis API kontrolü
+    if ('speechSynthesis' in window) {
+        // Önceki konuşmaları durdur
+        window.speechSynthesis.cancel();
+        
+        const utterance = new SpeechSynthesisUtterance(verb.de);
+        utterance.lang = 'de-DE';
+        utterance.rate = 0.8;
+        utterance.pitch = 1;
+        
+        utterance.onerror = function(event) {
+            console.error('Ses hatası:', event.error);
+            errorDiv.textContent = 'Ses çalma desteklenmiyor veya ses dosyası bulunamadı. Lütfen tarayıcı ayarlarını kontrol edin.';
+            errorDiv.style.display = 'block';
+            
+            // Fallback: Basit bir bip sesi
+            playBeep();
+        };
+        
+        // Brave browser için timeout
+        setTimeout(() => {
+            window.speechSynthesis.speak(utterance);
+        }, 100);
+        
+        // Eğer ses çalınmazsa 2 saniye sonra kontrol et
+        setTimeout(() => {
+            if (!window.speechSynthesis.speaking) {
+                errorDiv.textContent = 'Ses çalınmadı. Brave tarayıcıda ses ayarlarını kontrol edin veya başka bir tarayıcı deneyin.';
+                errorDiv.style.display = 'block';
+            }
+        }, 2000);
+        
+    } else {
+        errorDiv.textContent = 'Tarayıcınız ses desteği sunmuyor.';
+        errorDiv.style.display = 'block';
+        playBeep();
+    }
+}
+
+// Basit bip sesi (fallback)
+function playBeep() {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = 440;
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.5);
+    } catch(e) {
+        console.log('AudioContext desteklenmiyor');
+    }
+}
+
+// Tab switching
+function switchTab(tab) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    if (tab === 'learn') {
+        document.getElementById('learnMode').style.display = 'block';
+        document.getElementById('studyMode').style.display = 'none';
+    } else {
+        document.getElementById('learnMode').style.display = 'none';
+        document.getElementById('studyMode').style.display = 'block';
+        document.getElementById('modeSelection').classList.add('active');
+        document.getElementById('quizContainer').classList.remove('active');
+    }
+}
+
+// Quiz Functions
+function startQuiz(mode) {
+    currentMode = mode;
+    document.getElementById('modeSelection').classList.remove('active');
+    document.getElementById('quizContainer').classList.add('active');
+    
+    const titles = {
+        'de-tr': '🇩🇪 Almanca ➡️ 🇹🇷 Türkçe',
+        'tr-de': '🇹🇷 Türkçe ➡️ 🇩🇪 Almanca',
+        'conj': '📝 Çekim Testi'
+    };
+    document.getElementById('quizModeTitle').textContent = titles[mode];
+    
+    nextQuestion();
+}
+
+function nextQuestion() {
+    // Rastgele soru seç
+    const randomIndex = Math.floor(Math.random() * verbsData.length);
+    const verb = verbsData[randomIndex];
+    
+    let question, correctAnswer, options;
+    
+    if (currentMode === 'de-tr') {
+        question = `"${verb.de}" ne demek?`;
+        correctAnswer = verb.tr;
+        options = generateOptions(verb.tr, 'tr');
+    } else if (currentMode === 'tr-de') {
+        question = `"${verb.tr}" Almancası nedir?`;
+        correctAnswer = verb.de;
+        options = generateOptions(verb.de, 'de');
+    } else {
+        // Çekim testi
+        const pronouns = ['ich', 'du', 'er/sie', 'wir', 'ihr', 'sie/Sie'];
+        const randomPronounIndex = Math.floor(Math.random() * 6);
+        const pronoun = pronouns[randomPronounIndex];
+        question = `"${pronoun}" için doğru çekim: ${verb.de}`;
+        correctAnswer = verb.conj[randomPronounIndex];
+        options = generateConjOptions(verb.conj[randomPronounIndex], verb);
+    }
+    
+    currentQuestion = {
+        verb: verb,
+        correctAnswer: correctAnswer,
+        options: options,
+        questionId: Date.now()
+    };
+    
+    // UI güncelle
+    document.getElementById('questionBox').textContent = question;
+    document.getElementById('questionCounter').textContent = `Soru ${answeredQuestions.size + 1}`;
+    document.getElementById('feedback').classList.remove('show');
+    document.getElementById('nextBtn').classList.remove('show');
+    
+    // Seçenekleri göster
+    const optionsDiv = document.getElementById('options');
+    optionsDiv.innerHTML = options.map((opt, idx) => `
+        <button class="option-btn" onclick="checkAnswer(${idx})" id="opt-${idx}">
+            <span class="option-label">${String.fromCharCode(65 + idx)})</span>
+            <span class="option-text">${opt}</span>
+        </button>
+    `).join('');
+}
+
+function generateOptions(correct, type) {
+    const pool = type === 'tr' ? verbsData.map(v => v.tr) : verbsData.map(v => v.de);
+    const wrong = pool.filter(p => p !== correct);
+    const shuffled = wrong.sort(() => 0.5 - Math.random()).slice(0, 3);
+    const options = [...shuffled, correct];
+    return options.sort(() => 0.5 - Math.random());
+}
+
+function generateConjOptions(correct, verb) {
+    // Rastgele yanlış çekimler oluştur
+    const wrongOptions = [
+        verb.conj[Math.floor(Math.random() * 6)],
+        verb.de + 'st',
+        verb.de + 't',
+        verb.de + 'en'
+    ].filter(c => c !== correct);
+    
+    const uniqueWrong = [...new Set(wrongOptions)].slice(0, 3);
+    const options = [...uniqueWrong, correct];
+    return options.sort(() => 0.5 - Math.random());
+}
+
+function checkAnswer(selectedIndex) {
+    const selectedBtn = document.getElementById(`opt-${selectedIndex}`);
+    const correctIndex = currentQuestion.options.indexOf(currentQuestion.correctAnswer);
+    const correctBtn = document.getElementById(`opt-${correctIndex}`);
+    const feedback = document.getElementById('feedback');
+    
+    // Tüm butonları devre dışı bırak
+    document.querySelectorAll('.option-btn').forEach(btn => btn.classList.add('disabled'));
+    
+    if (selectedIndex === correctIndex) {
+        // Doğru cevap
+        selectedBtn.classList.add('correct');
+        feedback.textContent = '✅ Doğru! Tebrikler!';
+        feedback.className = 'feedback correct show';
+        
+        // Seriyi artır
+        const streak = parseInt(document.getElementById('streakCount').textContent) + 1;
+        document.getElementById('streakCount').textContent = streak;
+    } else {
+        // Yanlış cevap
+        selectedBtn.classList.add('wrong');
+        correctBtn.classList.add('correct');
+        feedback.textContent = `❌ Yanlış! Doğru cevap: ${currentQuestion.correctAnswer}`;
+        feedback.className = 'feedback wrong show';
+        
+        // Sadece ilk hatada sayaç artsın
+        const questionKey = `${currentQuestion.verb.de}-${currentQuestion.correctAnswer}`;
+        if (!answeredQuestions.has(questionKey)) {
+            errorCount++;
+            document.getElementById('errorCounter').textContent = `Hata: ${errorCount}`;
+            answeredQuestions.add(questionKey);
+        }
+        
+        // Seriyi sıfırla
+        document.getElementById('streakCount').textContent = 0;
+    }
+    
+    document.getElementById('nextBtn').classList.add('show');
+}
+
+// Hata sayacını sıfırla
+function resetErrorCount() {
+    errorCount = 0;
+    answeredQuestions.clear();
+    document.getElementById('errorCounter').textContent = `Hata: 0`;
+}
+
+// Başlat
+init();
+
+// Sayfa yenilendiğinde hata sayacını sıfırla
+window.addEventListener('load', resetErrorCount);
+</script>
+</body>
+</html>
+
+
+
+
